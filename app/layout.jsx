@@ -1,19 +1,29 @@
 // app/layout.jsx
 
 import "./globals.css";
-import Header from "./components/header";
+import Header from "./components/Header";
 import Footer from "./components/Footer";
 
+const SITE_URL = "https://www.elektroninesvizijos.lt";
+
 export const metadata = {
-  metadataBase: new URL("https://elektroninesvizijos.lt"),
+  // Čia nurodom bazinį domeną – iš jo Next.js sudėlios pilnus canonical
+  metadataBase: new URL(SITE_URL),
+
+  // Bendras title + šablonas visiems puslapiams
   title: {
-    // Homepage
     default: "Internetinė reklama – VIP zona",
-    // Visi kiti puslapiai: "%s | elektroninesvizijos.lt"
     template: "%s | elektroninesvizijos.lt",
   },
+
+  // Default meta description (home / fallback)
   description:
-    "Internetinė reklama ir VIP reklamos zona: ilgalaikės reklamos vietos teminiuose tinklalapiuose su aiškia metine kaina. Reklama internete be paslėptų mokesčių.",
+    "Internetinė reklama: VIP zona ir teminės reklamos kategorijos su aiškia metine kaina. Ilgalaikės reklamos vietos be rotacijos.",
+
+  // Kanoninė nuoroda pagrindiniam puslapiui
+  alternates: {
+    canonical: "/",
+  },
 };
 
 export default function RootLayout({ children }) {
