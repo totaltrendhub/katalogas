@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-gray-900 bg-gray-100;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  .slot {
+    transform: scale(0.85);
+  }
+}
