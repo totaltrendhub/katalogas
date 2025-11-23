@@ -16,7 +16,7 @@ export default async function Header() {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/elektroninesvizijos-logo.png"
-              alt="ELEKTRONINESVIZIJOS.LT"
+              alt="ELEKTRONINESVIZIJOS.LT logotipas"
               width={220}
               height={40}
               priority

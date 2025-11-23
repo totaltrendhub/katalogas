@@ -322,7 +322,7 @@ export default async function CategoryPage({ params }) {
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
                 <p className="text-sm font-semibold text-gray-900">
-                  Kaip rezervuoti reklamą?
+                  Kaip rezervuoti vietą reklamai?
                 </p>
                 <p className="mt-1 text-[11px] text-gray-600">
                   Išsirinkite laisvą vietą ir susisiekite – viską sutvarkysime

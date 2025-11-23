@@ -13,7 +13,7 @@ export const metadata = {
   // Bendras title + šablonas visiems puslapiams
   title: {
     default: "Internetinė reklama – VIP zona | ElektroninesVizijos.lt",
-    template: "%s | elektroninesvizijos.lt",
+    template: "%s | ElektroninesVizijos.lt",
   },
 
   // Default meta description (home / fallback)
