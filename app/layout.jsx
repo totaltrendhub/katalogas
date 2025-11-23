@@ -12,7 +12,7 @@ export const metadata = {
 
   // Bendras title + šablonas visiems puslapiams
   title: {
-    default: "Internetinė reklama – VIP zona",
+    default: "Internetinė reklama – VIP zona | ElektroninesVizijos.lt",
     template: "%s | elektroninesvizijos.lt",
   },
 
