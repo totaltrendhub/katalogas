@@ -1,7 +1,7 @@
 // app/layout.jsx
 
 import "./globals.css";
-import Header from "./components/Header";
+import Header from "./components/header";
 import Footer from "./components/Footer";
 
 const SITE_URL = "https://www.elektroninesvizijos.lt";
