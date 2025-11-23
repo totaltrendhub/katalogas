@@ -3,41 +3,31 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/getCurrentUser";
-import { logoutAction } from "@/lib/authActions";
 import { supabaseServer } from "@/lib/supabaseServer";
-import HeaderClient from "./HeaderClient";
+import { logoutAction } from "@/lib/authActions";
+import MobileMenu from "./MobileMenu";
 
 export default async function Header() {
   const user = await getCurrentUser();
 
-  // Kategorijos mobile meniu
-  let vipCategory = null;
-  let otherCategories = [];
+  // Kategorijos meniu (VIP įskaičiuosim atskirai)
+  const supabase = await supabaseServer();
+  const { data: categoriesData, error } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .order("name", { ascending: true });
 
-  try {
-    const supabase = await supabaseServer();
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from("categories")
-      .select("id, name, slug")
-      .order("name", { ascending: true });
-
-    if (categoriesError) {
-      console.error("Header categories ERROR:", categoriesError);
-    }
-
-    const allCategories = categoriesData || [];
-    vipCategory = allCategories.find((c) => c.slug === "vip-zona") || null;
-    otherCategories = allCategories
-      .filter((c) => c.slug !== "vip-zona")
-      .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
-  } catch (err) {
-    console.error("Header categories FATAL:", err);
+  if (error) {
+    console.error("Header categories ERROR:", error);
   }
 
+  const categories =
+    (categoriesData || []).filter((c) => c.slug !== "vip-zona") ?? [];
+
   return (
-    <header className="border-b border-gray-200 bg-white/80 backdrop-blur">
+    <header className="border-b border-gray-200 bg-white/80 backdrop-blur z-40">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Kairė – logotipas / nuoroda į pradžią */}
+        {/* Kairė – logotipas */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -51,10 +41,10 @@ export default async function Header() {
           </Link>
         </div>
 
-        {/* Dešinė – desktop navigacija + admin zona */}
-        <div className="hidden md:flex items-center gap-4 text-sm">
-          {/* Vieša navigacija (be prisijungimo, be straipsnių) */}
-          <nav className="flex items-center gap-3">
+        {/* Dešinė dalis */}
+        <div className="flex items-center gap-3">
+          {/* Desktop navigacija */}
+          <nav className="hidden sm:flex items-center gap-3 text-sm">
             <Link
               href="/"
               className="rounded-full px-3 py-1 text-xs sm:text-sm hover:bg-gray-100"
@@ -81,12 +71,10 @@ export default async function Header() {
             </Link>
           </nav>
 
-          {/* Admin zona – rodoma tik jei yra prisijungęs vartotojas */}
+          {/* Admin zona desktopui */}
           {user && (
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-xs text-gray-500">
-                {user.email}
-              </span>
+            <div className="hidden sm:flex items-center gap-3">
+              <span className="text-xs text-gray-500">{user.email}</span>
 
               <Link
                 href="/dashboard"
@@ -105,16 +93,11 @@ export default async function Header() {
               </form>
             </div>
           )}
-        </div>
 
-        {/* Mobile – burger meniu */}
-        <div className="md:hidden">
-          <HeaderClient
-            vipCategory={vipCategory}
-            categories={otherCategories}
-            userEmail={user?.email || null}
-            hasUser={!!user}
-          />
+          {/* Mobile meniu – VISADA, tik sm ir mažiau rodomas (MobileMenu viduje tvarko overlay) */}
+          <div className="sm:hidden">
+            <MobileMenu user={user} categories={categories} />
+          </div>
         </div>
       </div>
     </header>
