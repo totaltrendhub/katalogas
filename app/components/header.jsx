@@ -4,9 +4,35 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { logoutAction } from "@/lib/authActions";
+import { supabaseServer } from "@/lib/supabaseServer";
+import HeaderClient from "./HeaderClient";
 
 export default async function Header() {
   const user = await getCurrentUser();
+
+  // Kategorijos mobile meniu
+  let vipCategory = null;
+  let otherCategories = [];
+
+  try {
+    const supabase = await supabaseServer();
+    const { data: categoriesData, error: categoriesError } = await supabase
+      .from("categories")
+      .select("id, name, slug")
+      .order("name", { ascending: true });
+
+    if (categoriesError) {
+      console.error("Header categories ERROR:", categoriesError);
+    }
+
+    const allCategories = categoriesData || [];
+    vipCategory = allCategories.find((c) => c.slug === "vip-zona") || null;
+    otherCategories = allCategories
+      .filter((c) => c.slug !== "vip-zona")
+      .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
+  } catch (err) {
+    console.error("Header categories FATAL:", err);
+  }
 
   return (
     <header className="border-b border-gray-200 bg-white/80 backdrop-blur">
@@ -25,10 +51,10 @@ export default async function Header() {
           </Link>
         </div>
 
-        {/* Dešinė – navigacija + admin zona */}
-        <nav className="flex items-center gap-4 text-sm">
+        {/* Dešinė – desktop navigacija + admin zona */}
+        <div className="hidden md:flex items-center gap-4 text-sm">
           {/* Vieša navigacija (be prisijungimo, be straipsnių) */}
-          <div className="hidden sm:flex items-center gap-3">
+          <nav className="flex items-center gap-3">
             <Link
               href="/"
               className="rounded-full px-3 py-1 text-xs sm:text-sm hover:bg-gray-100"
@@ -53,7 +79,7 @@ export default async function Header() {
             >
               Apie katalogą
             </Link>
-          </div>
+          </nav>
 
           {/* Admin zona – rodoma tik jei yra prisijungęs vartotojas */}
           {user && (
@@ -79,7 +105,17 @@ export default async function Header() {
               </form>
             </div>
           )}
-        </nav>
+        </div>
+
+        {/* Mobile – burger meniu */}
+        <div className="md:hidden">
+          <HeaderClient
+            vipCategory={vipCategory}
+            categories={otherCategories}
+            userEmail={user?.email || null}
+            hasUser={!!user}
+          />
+        </div>
       </div>
     </header>
   );
