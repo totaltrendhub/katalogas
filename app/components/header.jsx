@@ -4,40 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { logoutAction } from "@/lib/authActions";
-import { supabaseServer } from "@/lib/supabaseServer";
-import HeaderClient from "./HeaderClient";
+import MobileMenu from "./MobileMenu";
 
 export default async function Header() {
   const user = await getCurrentUser();
 
-  // Kategorijos mobile meniu
-  let vipCategory = null;
-  let otherCategories = [];
-
-  try {
-    const supabase = await supabaseServer();
-    const { data: categoriesData, error: categoriesError } = await supabase
-      .from("categories")
-      .select("id, name, slug")
-      .order("name", { ascending: true });
-
-    if (categoriesError) {
-      console.error("Header categories ERROR:", categoriesError);
-    }
-
-    const allCategories = categoriesData || [];
-    vipCategory = allCategories.find((c) => c.slug === "vip-zona") || null;
-    otherCategories = allCategories
-      .filter((c) => c.slug !== "vip-zona")
-      .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
-  } catch (err) {
-    console.error("Header categories FATAL:", err);
-  }
-
   return (
-    <header className="border-b border-gray-200 bg-white/80 backdrop-blur">
+    <header className="border-b border-gray-200 bg-white/80 backdrop-blur z-40 sticky top-0">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        {/* Kairė – logotipas / nuoroda į pradžią */}
+        {/* Kairė – logotipas */}
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Image
@@ -51,10 +26,10 @@ export default async function Header() {
           </Link>
         </div>
 
-        {/* Dešinė – desktop navigacija + admin zona */}
-        <div className="hidden md:flex items-center gap-4 text-sm">
-          {/* Vieša navigacija (be prisijungimo, be straipsnių) */}
-          <nav className="flex items-center gap-3">
+        {/* Dešinė pusė */}
+        <div className="flex items-center gap-3">
+          {/* Desktop navigacija */}
+          <nav className="hidden sm:flex items-center gap-3 text-sm">
             <Link
               href="/"
               className="rounded-full px-3 py-1 text-xs sm:text-sm hover:bg-gray-100"
@@ -81,12 +56,10 @@ export default async function Header() {
             </Link>
           </nav>
 
-          {/* Admin zona – rodoma tik jei yra prisijungęs vartotojas */}
+          {/* Desktop admin zona */}
           {user && (
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-xs text-gray-500">
-                {user.email}
-              </span>
+            <div className="hidden sm:flex items-center gap-3">
+              <span className="text-xs text-gray-500">{user.email}</span>
 
               <Link
                 href="/dashboard"
@@ -105,16 +78,9 @@ export default async function Header() {
               </form>
             </div>
           )}
-        </div>
 
-        {/* Mobile – burger meniu */}
-        <div className="md:hidden">
-          <HeaderClient
-            vipCategory={vipCategory}
-            categories={otherCategories}
-            userEmail={user?.email || null}
-            hasUser={!!user}
-          />
+          {/* Mobile meniu – rodom tik < sm */}
+          <MobileMenu user={user} />
         </div>
       </div>
     </header>
