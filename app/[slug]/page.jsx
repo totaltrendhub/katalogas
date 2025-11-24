@@ -173,6 +173,33 @@ export async function generateMetadata({ params }) {
 
 const CATEGORY_ANNUAL_PRICE = 29;
 
+// Čia – tas pats helperis kaip homepage, kad visur būtų 6 slotai eilėje
+function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
+  const bySlotNumber = new Map();
+  for (const slot of rowSlots || []) {
+    const num = Number(slot.slot_number) || 0;
+    if (num > 0 && num <= maxSlots) {
+      bySlotNumber.set(num, slot);
+    }
+  }
+
+  const result = [];
+  for (let pos = 1; pos <= maxSlots; pos++) {
+    const existing = bySlotNumber.get(pos);
+    if (existing) {
+      result.push(existing);
+    } else {
+      result.push({
+        id: `virtual-${rowNumber}-${pos}`,
+        row_number: rowNumber,
+        slot_number: pos,
+        ad: null,
+      });
+    }
+  }
+  return result;
+}
+
 export default async function CategoryPage({ params }) {
   const { slug } = await params;
 
@@ -218,7 +245,9 @@ export default async function CategoryPage({ params }) {
     row.sort((a, b) => (a.slot_number || 0) - (b.slot_number || 0))
   );
 
-  const topRow = rows[1] || [];
+  const topRowRaw = rows[1] || [];
+  const topRow = buildDisplaySlots(topRowRaw, 1, 6);
+
   const otherRows = Object.entries(rows)
     .filter(([rowNumber]) => Number(rowNumber) !== 1)
     .sort((a, b) => Number(a[0]) - Number(b[0]));
@@ -257,18 +286,26 @@ export default async function CategoryPage({ params }) {
 
             {/* Kitos eilės */}
             <section className="mt-8 space-y-6">
-              {otherRows.map(([rowNumber, rowSlots]) => (
-                <div key={rowNumber} className="space-y-3">
-                  <h3 className="text-sm font-semibold text-gray-700">
-                    Eilė {rowNumber}
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                    {rowSlots.map((slot) => (
-                      <CategorySlotCard key={slot.id} slot={slot} />
-                    ))}
+              {otherRows.map(([rowNumber, rowSlots]) => {
+                const displaySlots = buildDisplaySlots(
+                  rowSlots,
+                  Number(rowNumber),
+                  6
+                );
+
+                return (
+                  <div key={rowNumber} className="space-y-3">
+                    <h3 className="text-sm font-semibold text-gray-700">
+                      Eilė {rowNumber}
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+                      {displaySlots.map((slot) => (
+                        <CategorySlotCard key={slot.id} slot={slot} />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </section>
           </div>
 
@@ -288,7 +325,7 @@ export default async function CategoryPage({ params }) {
               {vipCategory && (
                 <a
                   href="/"
-                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-gray-50 transition"
+                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50 transition"
                 >
                   <span>VIP zona</span>
                   <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[2px] text-[11px] font-bold text-white">
@@ -375,7 +412,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-2 text-xs sm:text-sm bg-white shadow-sm h-full " +
+    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-full " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
@@ -383,38 +420,38 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   return (
     <div className={baseClasses}>
       <div className="flex flex-col justify-between h-full">
-        <div className="space-y-1 min-h-[80px]">
-          <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-500 min-h-[12px]">
+        <div className="space-y-2">
+          <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-500 min-h-[14px]">
             {!isTaken && label}
           </div>
 
           {isTaken ? (
-            <div className="flex items-center justify-center pt-1 h-[48px]">
+            <div className="flex items-center justify-center pt-1 min-h-[72px]">
               {ad.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ad.image_url}
                   alt={anchorText || ad.title}
-                  className="max-h-[48px] max-w-full object-contain"
+                  className="max-h-[64px] w-full object-contain"
                 />
               )}
             </div>
           ) : (
-            <div className="pt-1 h-[48px] flex flex-col justify-center">
-              <div className="font-semibold text-gray-900 text-xs sm:text-sm">
+            <div className="pt-1">
+              <div className="text-sm font-semibold text-gray-900">
                 LAISVA
               </div>
             </div>
           )}
         </div>
 
-        <div className="mt-2 text-[11px] sm:text-xs font-semibold text-center leading-snug">
+        <div className="mt-3 text-xs font-semibold text-center leading-snug">
           {isTaken ? (
             <a
               href={ad.url}
               target="_blank"
               rel="noopener"
-              className="block w-full text-blue-700 hover:text-blue-900 text-[11px] sm:text-[13px] leading-snug line-clamp-2"
+              className="block w-full text-blue-700 hover:text-blue-900 text-[13px] leading-snug line-clamp-2"
             >
               {anchorText}
             </a>
