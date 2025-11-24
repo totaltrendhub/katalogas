@@ -422,7 +422,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
       <div className="flex flex-col h-full">
         {/* Label tik laisvam slotui */}
         {!isTaken && (
-          <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
+          <div className="text-[12px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
             {label}
           </div>
         )}
@@ -445,13 +445,13 @@ function CategorySlotCard({ slot, isTopRow = false }) {
               </div>
             ) : null
           ) : (
-            <div className="text-[12px] font-semibold text-gray-900">
+            <div className="text-[14px] font-semibold text-gray-900">
               LAISVA
             </div>
           )}
         </div>
 
-        <div className="mt-1 text-[10px] font-semibold text-center leading-tight">
+        <div className="mt-1 text-[12px] font-semibold text-center leading-tight">
           {isTaken ? (
             <a
               href={ad.url}
