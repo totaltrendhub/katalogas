@@ -412,7 +412,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-full " +
+    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-[210px] " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
@@ -426,14 +426,16 @@ function CategorySlotCard({ slot, isTopRow = false }) {
           </div>
 
           {isTaken ? (
-            <div className="flex items-center justify-center pt-1 min-h-[72px]">
+            <div className="flex items-center justify-center pt-1">
               {ad.image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={ad.image_url}
-                  alt={anchorText || ad.title}
-                  className="max-h-[64px] w-full object-contain"
-                />
+                <div className="w-[120px] h-[60px] flex items-center justify-center overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={ad.image_url}
+                    alt={anchorText || ad.title}
+                    className="h-full w-auto object-contain"
+                  />
+                </div>
               )}
             </div>
           ) : (
@@ -445,7 +447,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
           )}
         </div>
 
-        <div className="mt-3 text-xs font-semibold text-center leading-snug">
+        <div className="mt-auto pt-3 text-xs font-semibold text-center leading-snug">
           {isTaken ? (
             <a
               href={ad.url}
