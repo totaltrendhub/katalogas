@@ -173,33 +173,6 @@ export async function generateMetadata({ params }) {
 
 const CATEGORY_ANNUAL_PRICE = 29;
 
-// Čia – tas pats helperis kaip homepage, kad visur būtų 6 slotai eilėje
-function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
-  const bySlotNumber = new Map();
-  for (const slot of rowSlots || []) {
-    const num = Number(slot.slot_number) || 0;
-    if (num > 0 && num <= maxSlots) {
-      bySlotNumber.set(num, slot);
-    }
-  }
-
-  const result = [];
-  for (let pos = 1; pos <= maxSlots; pos++) {
-    const existing = bySlotNumber.get(pos);
-    if (existing) {
-      result.push(existing);
-    } else {
-      result.push({
-        id: `virtual-${rowNumber}-${pos}`,
-        row_number: rowNumber,
-        slot_number: pos,
-        ad: null,
-      });
-    }
-  }
-  return result;
-}
-
 export default async function CategoryPage({ params }) {
   const { slug } = await params;
 
@@ -245,16 +218,14 @@ export default async function CategoryPage({ params }) {
     row.sort((a, b) => (a.slot_number || 0) - (b.slot_number || 0))
   );
 
-  const topRowRaw = rows[1] || [];
-  const topRow = buildDisplaySlots(topRowRaw, 1, 6);
-
+  const topRow = rows[1] || [];
   const otherRows = Object.entries(rows)
     .filter(([rowNumber]) => Number(rowNumber) !== 1)
     .sort((a, b) => Number(a[0]) - Number(b[0]));
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-7xl mx-auto px-4 pb-12">
+      <main className="max-w-6xl mx-auto px-4 pb-12">
         {/* Hero – centrinis, kaip VIP, tik su SEO tekstais */}
         <section className="mt-10 mb-8 text-center">
           <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold text-gray-900">
@@ -273,7 +244,7 @@ export default async function CategoryPage({ params }) {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <CategorySlotCard
                     key={slot.id}
@@ -286,26 +257,18 @@ export default async function CategoryPage({ params }) {
 
             {/* Kitos eilės */}
             <section className="mt-8 space-y-6">
-              {otherRows.map(([rowNumber, rowSlots]) => {
-                const displaySlots = buildDisplaySlots(
-                  rowSlots,
-                  Number(rowNumber),
-                  6
-                );
-
-                return (
-                  <div key={rowNumber} className="space-y-3">
-                    <h3 className="text-sm font-semibold text-gray-700">
-                      Eilė {rowNumber}
-                    </h3>
-                    <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-                      {displaySlots.map((slot) => (
-                        <CategorySlotCard key={slot.id} slot={slot} />
-                      ))}
-                    </div>
+              {otherRows.map(([rowNumber, rowSlots]) => (
+                <div key={rowNumber} className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-700">
+                    Eilė {rowNumber}
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {rowSlots.map((slot) => (
+                      <CategorySlotCard key={slot.id} slot={slot} />
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </section>
           </div>
 
@@ -362,19 +325,20 @@ export default async function CategoryPage({ params }) {
                   Kaip rezervuoti vietą reklamai?
                 </p>
                 <p className="mt-1 text-[11px] text-gray-600">
-                  Išsirinkite laisvą vietą ir susisiekite – viską sutvarkysime
-                  rankiniu būdu.
+                  Išsirinkite laisvą vietą ir susisiekite – viską
+                  sutvarkysime rankiniu būdu.
                 </p>
               </div>
 
               <ul className="mt-1 space-y-1 text-[11px] text-gray-600">
                 <li>• Pasirenkate kategoriją ir laisvą vietą.</li>
                 <li>
-                  • Atsiunčiate mums savo puslapio pavadinimą, logotipą ir
-                  nuorodą.
+                  • Atsiunčiate mums savo puslapio pavadinimą, logotipą
+                  ir nuorodą.
                 </li>
                 <li>
-                  • Suderiname laikotarpį ir sąlygas, patalpiname reklamą.
+                  • Suderiname laikotarpį ir sąlygas, patalpiname
+                  reklamą.
                 </li>
               </ul>
 
@@ -412,7 +376,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-[135px] " +
+    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-[210px] " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
@@ -428,7 +392,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
           {isTaken ? (
             <div className="flex items-center justify-center pt-1">
               {ad.image_url && (
-                <div className="w-[120px] h-[120px] flex items-center justify-center overflow-hidden">
+                <div className="w-[120px] h-[60px] flex items-center justify-center overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={ad.image_url}
@@ -447,7 +411,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
           )}
         </div>
 
-        <div className="mt-auto pt-3 text-xs font-semibold text-center leading-snug">
+        <div className="mt-auto text-xs font-semibold text-center leading-snug">
           {isTaken ? (
             <a
               href={ad.url}
