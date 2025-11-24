@@ -244,7 +244,7 @@ export default async function CategoryPage({ params }) {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <CategorySlotCard
                     key={slot.id}
@@ -262,7 +262,7 @@ export default async function CategoryPage({ params }) {
                   <h3 className="text-sm font-semibold text-gray-700">
                     Eilė {rowNumber}
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                     {rowSlots.map((slot) => (
                       <CategorySlotCard key={slot.id} slot={slot} />
                     ))}
@@ -288,7 +288,7 @@ export default async function CategoryPage({ params }) {
               {vipCategory && (
                 <a
                   href="/"
-                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50 transition"
+                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-gray-50 transition"
                 >
                   <span>VIP zona</span>
                   <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[2px] text-[11px] font-bold text-white">

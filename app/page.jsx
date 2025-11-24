@@ -82,8 +82,8 @@ export default async function HomePage() {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              {/* 6 slotai nuo lg, mobile – 2 */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {/* MOBILE: 2 stulpeliai, NUO md: 6 stulpeliai */}
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <HomeSlotCard key={slot.id} slot={slot} isTopRow />
                 ))}
@@ -97,7 +97,7 @@ export default async function HomePage() {
                   <h3 className="text-sm font-semibold text-gray-700">
                     Eilė {rowNumber}
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                     {rowSlots.map((slot) => (
                       <HomeSlotCard key={slot.id} slot={slot} />
                     ))}
