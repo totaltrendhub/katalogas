@@ -412,48 +412,47 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm w-[135px] min-h-[135px] " +
+    "rounded-2xl border px-2 py-2 text-[11px] bg-white shadow-sm w-[135px] h-[135px] mx-auto overflow-hidden " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
 
   return (
     <div className={baseClasses}>
-      <div className="flex flex-col justify-between h-full">
-        <div className="space-y-2">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-500 min-h-[14px]">
-            {!isTaken && label}
-          </div>
+      <div className="flex flex-col h-full">
+        {/* Viršus – label */}
+        <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 min-h-[12px]">
+          {!isTaken && label}
+        </div>
 
+        {/* Vidurys – logo arba "LAISVA" */}
+        <div className="flex-1 flex items-center justify-center">
           {isTaken ? (
-            <div className="flex items-center justify-center pt-1">
-              {ad.image_url && (
-                <div className="w-[120px] h-[120px] flex items-center justify-center overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={ad.image_url}
-                    alt={anchorText || ad.title}
-                    className="h-full w-auto object-contain"
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="pt-1">
-              <div className="text-sm font-semibold text-gray-900">
-                LAISVA
+            ad.image_url ? (
+              <div className="w-[120px] h-[120px] max-w-full max-h-full flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={ad.image_url}
+                  alt={anchorText || ad.title}
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
+            ) : null
+          ) : (
+            <div className="text-[12px] font-semibold text-gray-900">
+              LAISVA
             </div>
           )}
         </div>
 
-        <div className="mt-auto pt-3 text-xs font-semibold text-center leading-snug">
+        {/* Apačia – anchor tekstas arba kaina */}
+        <div className="mt-1 text-[10px] font-semibold text-center leading-tight">
           {isTaken ? (
             <a
               href={ad.url}
               target="_blank"
               rel="noopener"
-              className="block w-full text-blue-700 hover:text-blue-900 text-[13px] leading-snug line-clamp-2"
+              className="block w-full text-blue-700 hover:text-blue-900 leading-tight line-clamp-2"
             >
               {anchorText}
             </a>
