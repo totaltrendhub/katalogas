@@ -93,7 +93,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="max-w-6xl mx-auto px-4 pb-12">
+      <main className="max-w-7xl mx-auto px-4 pb-12">
         {/* Hero */}
         <section className="mt-10 mb-8 text-center">
           <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold text-gray-900">
@@ -243,7 +243,7 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-[210px] " +
+    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-[135px] " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
@@ -259,7 +259,7 @@ function HomeSlotCard({ slot, isTopRow = false }) {
           {isTaken ? (
             <div className="flex items-center justify-center pt-1">
               {ad.image_url && (
-                <div className="w-[120px] h-[60px] flex items-center justify-center overflow-hidden">
+                <div className="w-[120px] h-[120px] flex items-center justify-center overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={ad.image_url}
