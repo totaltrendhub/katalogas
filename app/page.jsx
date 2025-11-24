@@ -5,7 +5,7 @@ import { supabaseServer } from "@/lib/supabaseServer";
 
 export const dynamic = "force-dynamic";
 
-// VIP zonos metinės kainos pagal eilę
+// Metinės kainos pagal eilutę (neanimuotos)
 const ROW_ANNUAL_PRICES = {
   1: 49,
   2: 39,
@@ -24,7 +24,7 @@ function getAnnualPrice(rowNumber) {
 
 export default async function HomePage() {
   // VIP zonos slotai
-  const { slots } = await getSlotsByCategory("vip-zona");
+  const { category, slots } = await getSlotsByCategory("vip-zona");
 
   // Visos kategorijos sidebarui
   const supabase = await supabaseServer();
@@ -42,7 +42,7 @@ export default async function HomePage() {
     allCategories.find((c) => c.slug === "vip-zona") || null;
   const otherCategories = allCategories
     .filter((c) => c.slug !== "vip-zona")
-    .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
+    .sort((a, b) => a.name.localeCompare(b.name, "lt"));
 
   // Grupavimas pagal eilę
   const rows = (slots || []).reduce((acc, slot) => {
@@ -74,7 +74,7 @@ export default async function HomePage() {
           </p>
         </section>
 
-        {/* Pagrindinis layout: identiškas kategorijų puslapiams */}
+        {/* Pagrindinis layout: siauresnis sidebar, daugiau vietos slotams */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr),minmax(0,1fr)] gap-8 items-start">
           {/* Kairė – slotai */}
           <div>
@@ -82,7 +82,8 @@ export default async function HomePage() {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              {/* 6 slotai dideliuose ekranuose, 2 – mobile */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <HomeSlotCard key={slot.id} slot={slot} isTopRow />
                 ))}
@@ -96,7 +97,7 @@ export default async function HomePage() {
                   <h3 className="text-sm font-semibold text-gray-700">
                     Eilė {rowNumber}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {rowSlots.map((slot) => (
                       <HomeSlotCard key={slot.id} slot={slot} />
                     ))}
@@ -111,20 +112,17 @@ export default async function HomePage() {
             {/* Teminės kategorijos */}
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
-                <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Teminės kategorijos
-                </p>
                 <p className="mt-1 text-[11px] text-gray-500">
                   Pasirinkite kategoriją ir peržiūrėkite joje esančias
                   reklamos vietas.
                 </p>
               </div>
 
-              {/* VIP pirmas, be nuolatinio mėlyno „active“ fono */}
+              {/* VIP pirmas, atskirtas blokas */}
               {vipCategory && (
                 <a
-                  href="/"
-                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50 transition"
+                  href="/vip-zona"
+                  className="mt-2 flex items-center justify-between rounded-2xl bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-100 transition"
                 >
                   <span>VIP zona</span>
                   <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[2px] text-[11px] font-bold text-white">
@@ -146,7 +144,7 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Kaip rezervuoti reklamą? – bendras visiems puslapiams blokas */}
+            {/* Kaip rezervuoti reklamą? */}
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
                 <p className="text-sm font-semibold text-gray-900">
@@ -211,31 +209,38 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   return (
     <div className={baseClasses}>
       <div className="flex flex-col justify-between h-full">
-        <div className="space-y-2">
+        {/* Viršus: fiksuoto aukščio blokas, kad kortelės nesikeistų nuo logo dydžio */}
+        <div className="space-y-2 min-h-[110px]">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-500 min-h-[14px]">
             {!isTaken && label}
           </div>
 
           {isTaken ? (
-            <div className="flex items-center justify-center pt-1 min-h-[72px]">
+            // UŽIMTAS SLOTAS – fiksuotas logo langelis
+            <div className="flex items-center justify-center pt-1 h-[64px]">
               {ad.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ad.image_url}
                   alt={anchorText || ad.title}
-                  className="max-h-[64px] w-full object-contain"
+                  className="max-h-[64px] max-w-full object-contain"
                 />
               )}
             </div>
           ) : (
-            <div className="pt-1">
+            // LAISVAS SLOTAS – tekstas irgi telpa į fiksuotą aukštį
+            <div className="pt-1 h-[64px] flex flex-col justify-center">
               <div className="text-sm font-semibold text-gray-900">
                 LAISVA
+              </div>
+              <div className="mt-1 text-[11px] text-gray-500">
+                Metinė reklamos vieta
               </div>
             </div>
           )}
         </div>
 
+        {/* Apačia: užimtam – anchor tekstas, laisvam – kaina */}
         <div className="mt-3 text-xs font-semibold text-center leading-snug">
           {isTaken ? (
             <a

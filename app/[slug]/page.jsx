@@ -244,7 +244,7 @@ export default async function CategoryPage({ params }) {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <CategorySlotCard
                     key={slot.id}
@@ -262,7 +262,7 @@ export default async function CategoryPage({ params }) {
                   <h3 className="text-sm font-semibold text-gray-700">
                     Eilė {rowNumber}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                     {rowSlots.map((slot) => (
                       <CategorySlotCard key={slot.id} slot={slot} />
                     ))}
@@ -383,24 +383,25 @@ function CategorySlotCard({ slot, isTopRow = false }) {
   return (
     <div className={baseClasses}>
       <div className="flex flex-col justify-between h-full">
-        <div className="space-y-2">
+        {/* Viršus: fiksuotas blokas, kad kortelės nesikeistų */}
+        <div className="space-y-2 min-h-[110px]">
           <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-500 min-h-[14px]">
             {!isTaken && label}
           </div>
 
           {isTaken ? (
-            <div className="flex items-center justify-center pt-1 min-h-[72px]">
+            <div className="flex items-center justify-center pt-1 h-[64px]">
               {ad.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ad.image_url}
                   alt={anchorText || ad.title}
-                  className="max-h-[64px] w-full object-contain"
+                  className="max-h-[64px] max-w-full object-contain"
                 />
               )}
             </div>
           ) : (
-            <div className="pt-1">
+            <div className="pt-1 h-[64px] flex flex-col justify-center">
               <div className="text-sm font-semibold text-gray-900">
                 LAISVA
               </div>
