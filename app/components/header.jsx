@@ -3,23 +3,18 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getCurrentUser } from "@/lib/getCurrentUser";
-import { logoutAction } from "@/lib/authActions";
 import { supabaseServer } from "@/lib/supabaseServer";
-import MobileMenu from "./MobileMenu";
+import MobileMenuClient from "./MobileMenuClient";
+import { logoutAction } from "@/lib/authActions";
 
 export default async function Header() {
   const user = await getCurrentUser();
-  const supabase = await supabaseServer();
 
-  // Kategorijos mobile meniu
-  const { data: categoriesData, error: categoriesError } = await supabase
+  const supabase = await supabaseServer();
+  const { data: categoriesData } = await supabase
     .from("categories")
     .select("id, name, slug")
     .order("name", { ascending: true });
-
-  if (categoriesError) {
-    console.error("Header categories ERROR:", categoriesError);
-  }
 
   const categories = categoriesData || [];
 
@@ -42,7 +37,6 @@ export default async function Header() {
 
         {/* Desktop navigacija */}
         <nav className="hidden sm:flex items-center gap-4 text-sm">
-          {/* Vieša navigacija */}
           <div className="flex items-center gap-3">
             <Link
               href="/"
@@ -70,7 +64,7 @@ export default async function Header() {
             </Link>
           </div>
 
-          {/* Admin zona (tik prisijungus) */}
+          {/* Admin zona – tik desktop */}
           {user && (
             <div className="flex items-center gap-3">
               <span className="hidden sm:inline text-xs text-gray-500">
@@ -96,9 +90,13 @@ export default async function Header() {
           )}
         </nav>
 
-        {/* Mobile mygtukas */}
+        {/* Mobile meniu mygtukas + overlay */}
         <div className="sm:hidden">
-          <MobileMenu categories={categories} />
+          <MobileMenuClient
+            categories={categories}
+            hasUser={!!user}
+            userEmail={user?.email || null}
+          />
         </div>
       </div>
     </header>
