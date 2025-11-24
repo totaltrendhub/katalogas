@@ -451,7 +451,7 @@ function CategorySlotCard({ slot, isTopRow = false }) {
           )}
         </div>
 
-        <div className="mt-1 text-[12px] font-semibold text-center leading-tight">
+        <div className="mt-1 text-[14px] font-semibold text-center leading-tight">
           {isTaken ? (
             <a
               href={ad.url}
