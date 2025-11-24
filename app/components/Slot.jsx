@@ -1,5 +1,3 @@
-// app/components/Slot.jsx
-
 function getSlotLabel(slot) {
   const row = Number(slot.row_number) || 1;
   const slotNumber = Number(slot.slot_number) || null;
@@ -72,7 +70,8 @@ export default function Slot({ slot }) {
                 href={ad.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-[13px] font-semibold text-blue-700 hover:text-blue-900 text-center break-words leading-snug"
+                title={anchorText}
+                className="block w-full text-[13px] font-semibold text-blue-700 hover:text-blue-900 text-center leading-snug overflow-hidden text-ellipsis whitespace-nowrap"
               >
                 {anchorText}
               </a>

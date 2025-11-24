@@ -1,5 +1,3 @@
-// app/page.jsx
-
 import { getSlotsByCategory } from "@/lib/getSlotsByCategory";
 import { supabaseServer } from "@/lib/supabaseServer";
 
@@ -115,11 +113,7 @@ export default async function HomePage() {
               {/* 6 slotai: 2 per eilę mobile, 6 per eilę nuo md */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
-                  <HomeSlotCard
-                    key={slot.id}
-                    slot={slot}
-                    isTopRow
-                  />
+                  <HomeSlotCard key={slot.id} slot={slot} isTopRow />
                 ))}
               </div>
             </section>
@@ -241,69 +235,89 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   const label = isTopRow ? "TOP VIETA" : `VIETA ${slot.slot_number}`;
   const annualPrice = getAnnualPrice(slot.row_number);
   const anchorText = ad?.anchor_text || ad?.title || "";
+  const isLongAnchor = anchorText.length > 22;
 
   const baseClasses =
-    "rounded-2xl border px-2 py-2 text-[11px] bg-white shadow-sm w-[135px] h-[135px] mx-auto overflow-hidden " +
+    "group rounded-2xl border px-2 py-2 text-[11px] bg-white shadow-sm w-[135px] h-[135px] mx-auto overflow-hidden transition-colors " +
     (isTopRow
-      ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
-      : "border-gray-200");
+      ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white hover:border-amber-300"
+      : "border-gray-200 hover:border-gray-300");
 
-  return (
-    <div className={baseClasses}>
-      <div className="flex flex-col h-full">
-        {/* Label rodom tik kai slotas LAISVAS – kad neužimtų vietos užimtam */}
-        {!isTaken && (
-          <div className="text-[12px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
-            {label}
+  const content = (
+    <div className="flex flex-col h-full">
+      {/* Label rodom tik kai slotas LAISVAS – kad neužimtų vietos užimtam */}
+      {!isTaken && (
+        <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
+          {label}
+        </div>
+      )}
+
+      {/* Vidurinė dalis – logo arba LAISVA */}
+      <div
+        className={
+          "flex-1 flex justify-center " +
+          (isTaken ? "items-start" : "items-center")
+        }
+      >
+        {isTaken ? (
+          ad.image_url ? (
+            <div className="w-[120px] max-w-full max-h-[80px] flex items-center justify-center">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={ad.image_url}
+                alt={anchorText || ad.title}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          ) : null
+        ) : (
+          <div className="text-[12px] font-semibold text-gray-900">
+            LAISVA
           </div>
         )}
+      </div>
 
-        {/* Vidurinė dalis – logo arba LAISVA */}
-        <div
-          className={
-            "flex-1 flex justify-center " +
-            (isTaken ? "items-start" : "items-center")
-          }
-        >
-          {isTaken ? (
-            ad.image_url ? (
-              <div className="w-[120px] max-w-full max-h-[80px] flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ad.image_url}
-                  alt={anchorText || ad.title}
-                  className="max-w-full max-h-full object-contain"
-                />
-              </div>
-            ) : null
-          ) : (
-            <div className="text-[14px] font-semibold text-gray-900">
-              LAISVA
-            </div>
-          )}
-        </div>
-
-        {/* Apačia – anchor tekstas arba kaina */}
-        <div className="mt-1 text-[12px] font-semibold text-center leading-tight">
-          {isTaken ? (
-            <a
-              href={ad.url}
-              target="_blank"
-              rel="noopener"
-              className="block w-full text-blue-700 hover:text-blue-900 leading-tight line-clamp-2"
+      {/* Apačia – anchor tekstas arba kaina */}
+      <div className="mt-1 text-center leading-tight">
+        {isTaken ? (
+          anchorText ? (
+            <span
+              className={
+                "block w-full font-semibold text-blue-700 group-hover:text-blue-900 overflow-hidden text-ellipsis whitespace-nowrap " +
+                (isLongAnchor ? "text-[10px]" : "text-[12px]")
+              }
+              title={anchorText}
             >
               {anchorText}
-            </a>
-          ) : annualPrice ? (
-            <span className="text-gray-700">
-              {annualPrice.toFixed(2)} €{" "}
-              <span className="text-gray-500 font-normal">/ metai</span>
             </span>
-          ) : (
-            <span className="text-gray-400">Kaina pagal susitarimą</span>
-          )}
-        </div>
+          ) : null
+        ) : annualPrice ? (
+          <span className="text-[11px] text-gray-700">
+            {annualPrice.toFixed(2)} €{" "}
+            <span className="text-gray-500 font-normal">/ metai</span>
+          </span>
+        ) : (
+          <span className="text-[11px] text-gray-400">
+            Kaina pagal susitarimą
+          </span>
+        )}
       </div>
     </div>
   );
+
+  if (isTaken && ad?.url) {
+    return (
+      <a
+        href={ad.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={baseClasses}
+        title={anchorText}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return <div className={baseClasses}>{content}</div>;
 }
