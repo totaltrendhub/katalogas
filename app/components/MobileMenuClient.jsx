@@ -1,42 +1,69 @@
 // app/components/MobileMenuClient.jsx
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { logoutAction } from "@/lib/authActions";
 
-export default function MobileMenuClient({ categories, hasUser, userEmail }) {
+const CATEGORY_LINKS = [
+  { href: "/informacija", label: "Informacija" },
+  { href: "/iniciatyvos", label: "Iniciatyvos" },
+  { href: "/kultura-menas", label: "Kultūra ir menas" },
+  { href: "/nekilnojamas-turtas", label: "Nekilnojamas turtas" },
+  { href: "/parduotuves", label: "Parduotuvės" },
+  { href: "/paslaugos", label: "Paslaugos" },
+  { href: "/pramogos", label: "Pramogos" },
+  { href: "/sportas-pomegiai", label: "Sportas ir pomėgiai" },
+  { href: "/sveikata-grozis", label: "Sveikata ir Grožis" },
+  { href: "/seima-vaikai", label: "Šeima ir vaikai" },
+  { href: "/technologijos", label: "Technologijos" },
+  { href: "/transportas", label: "Transportas" },
+  { href: "/turizmas-keliones", label: "Turizmas ir kelionės" },
+  { href: "/verslas-finansai", label: "Verslas ir finansai" },
+  { href: "/ziniasklaida", label: "Žiniasklaida" },
+];
+
+const PAGE_LINKS = [
+  { href: "/", label: "VIP zona" },
+  { href: "/kainos", label: "Kainos" },
+  { href: "/kontaktai", label: "Kontaktai" },
+  { href: "/apie-kataloga", label: "Apie katalogą" },
+];
+
+export default function MobileMenuClient({ user }) {
   const [open, setOpen] = useState(false);
 
-  const vipCategory =
-    categories.find((c) => c.slug === "vip-zona") || null;
-  const otherCategories = categories
-    .filter((c) => c.slug !== "vip-zona")
-    .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
+  // Kai meniu atidarytas – užrakinti body scroll
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev;
+      };
+    }
+  }, [open]);
 
   return (
     <>
-      {/* Mygtukas header’yje */}
+      {/* Burger mygtukas – matosi tik mobile */}
       <button
         type="button"
+        className="inline-flex items-center justify-center rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100 sm:hidden"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center rounded-full border border-gray-300 px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-        aria-label="Atidaryti meniu"
       >
-        <span className="mr-2">Meniu</span>
-        <span className="flex flex-col justify-between h-3">
-          <span className="block h-[2px] w-3 bg-gray-700 rounded" />
-          <span className="block h-[2px] w-3 bg-gray-700 rounded" />
-          <span className="block h-[2px] w-3 bg-gray-700 rounded" />
+        <span className="mr-2 block h-[1px] w-3 bg-gray-700 relative">
+          <span className="absolute -top-1 block h-[1px] w-3 bg-gray-700" />
+          <span className="absolute top-1 block h-[1px] w-3 bg-gray-700" />
         </span>
+        Meniu
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-[9999] flex flex-col bg-white">
+        <div className="fixed inset-0 z-[9999] bg-white overflow-y-auto">
           {/* Viršutinė juosta */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-            <span className="text-base font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-gray-900">
               Meniu
             </span>
             <button
@@ -50,96 +77,90 @@ export default function MobileMenuClient({ categories, hasUser, userEmail }) {
           </div>
 
           {/* Turinys */}
-          <div className="flex-1 overflow-y-auto px-4 pb-6 pt-3 space-y-6">
+          <div className="max-w-6xl mx-auto px-4 py-4 pb-8">
             {/* Kategorijos */}
-            <section>
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Kategorijos
               </p>
-              <div className="mt-3 space-y-1 text-sm">
+
+              {/* VIP pirmas */}
+              <nav className="space-y-0.5 mb-2">
                 <Link
                   href="/"
                   onClick={() => setOpen(false)}
-                  className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-gray-50"
+                  className="flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-gray-900 bg-blue-50"
                 >
                   <span>VIP zona</span>
-                  <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[1px] text-[10px] font-semibold text-white">
+                  <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[2px] text-[11px] font-bold text-white">
                     VIP
                   </span>
                 </Link>
+              </nav>
 
-                {otherCategories.map((cat) => (
+              <nav className="space-y-0.5">
+                {CATEGORY_LINKS.map((item) => (
                   <Link
-                    key={cat.id}
-                    href={`/${cat.slug}`}
+                    key={item.href}
+                    href={item.href}
                     onClick={() => setOpen(false)}
-                    className="block rounded-lg px-2 py-1.5 hover:bg-gray-50"
+                    className="block rounded-lg px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
                   >
-                    {cat.name}
+                    {item.label}
                   </Link>
                 ))}
-              </div>
-            </section>
+              </nav>
+            </div>
+
+            <hr className="my-4" />
 
             {/* Puslapiai */}
-            <section className="border-t border-gray-100 pt-4">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            <div className="mb-4">
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">
                 Puslapiai
               </p>
-              <div className="mt-3 space-y-1 text-sm">
-                <Link
-                  href="/kainos"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-2 py-1.5 hover:bg-gray-50"
-                >
-                  Kainos
-                </Link>
-                <Link
-                  href="/kontaktai"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-2 py-1.5 hover:bg-gray-50"
-                >
-                  Kontaktai
-                </Link>
-                <Link
-                  href="/apie-kataloga"
-                  onClick={() => setOpen(false)}
-                  className="block rounded-lg px-2 py-1.5 hover:bg-gray-50"
-                >
-                  Apie katalogą
-                </Link>
-              </div>
-            </section>
-
-            {/* Admin blokas – jei prisijungęs */}
-            {hasUser && (
-              <section className="border-t border-gray-100 pt-4 space-y-2">
-                {userEmail && (
-                  <p className="text-[11px] text-gray-500">
-                    Prisijungęs:{" "}
-                    <span className="font-medium text-gray-800">
-                      {userEmail}
-                    </span>
-                  </p>
-                )}
-
-                <Link
-                  href="/dashboard"
-                  onClick={() => setOpen(false)}
-                  className="inline-flex items-center rounded-full bg-gray-900 px-4 py-1.5 text-xs font-semibold text-white hover:bg-black"
-                >
-                  Admin
-                </Link>
-
-                <form action={logoutAction}>
-                  <button
-                    type="submit"
-                    className="inline-flex items-center rounded-full bg-red-500 px-4 py-1.5 text-xs font-semibold text-white hover:bg-red-600"
+              <nav className="space-y-0.5">
+                {PAGE_LINKS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-lg px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
                   >
-                    Atsijungti
-                  </button>
-                </form>
-              </section>
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* Admin blokas, jei prisijungęs */}
+            {user && (
+              <>
+                <hr className="my-4" />
+                <div>
+                  <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">
+                    Administravimas
+                  </p>
+                  <nav className="space-y-0.5">
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setOpen(false)}
+                      className="block rounded-lg px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                    >
+                      Admin
+                    </Link>
+                    <form action={logoutAction}>
+                      <button
+                        type="submit"
+                        className="mt-1 inline-flex w-auto rounded-lg bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-600"
+                        onClick={() => setOpen(false)}
+                      >
+                        Atsijungti
+                      </button>
+                    </form>
+                  </nav>
+                </div>
+              </>
             )}
           </div>
         </div>
