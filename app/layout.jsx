@@ -4,7 +4,8 @@ import "./globals.css";
 import Header from "./components/header";
 import Footer from "./components/Footer";
 
-const SITE_URL = "https://www.elektroninesvizijos.lt";
+// Pagrindinis domenas – be www
+const SITE_URL = "https://elektroninesvizijos.lt";
 
 export const metadata = {
   // Čia nurodom bazinį domeną – iš jo Next.js sudėlios pilnus canonical
