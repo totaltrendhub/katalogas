@@ -1,4 +1,3 @@
-// app/components/LogoUpload.jsx
 "use client";
 
 import { useState } from "react";

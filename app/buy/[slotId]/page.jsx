@@ -24,130 +24,141 @@ function formatDateTimeLocal(value) {
   return d.toISOString().slice(0, 16);
 }
 
+function buildAdsRedirect({ categorySlug, success, error }) {
+  const params = new URLSearchParams();
+  params.set("view", "slots");
+  if (categorySlug) params.set("category", categorySlug);
+  if (success) params.set("success", success);
+  if (error) params.set("error", error);
+  return `/dashboard/ads?${params.toString()}`;
+}
+
 /**
  * Server action: sukuria reklamą konkrečiam slotui
  */
 async function createAdForSlot(formData) {
   "use server";
 
-  try {
-    const user = await getCurrentUser();
-    if (!user) {
-      redirect("/auth/login");
-    }
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/auth/login");
+  }
 
-    const supabase = await supabaseServer();
+  const supabase = await supabaseServer();
 
-    // admin check
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("is_admin")
-      .eq("id", user.id)
-      .maybeSingle();
+  // admin check
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .maybeSingle();
 
-    if (!profile?.is_admin) {
-      redirect("/dashboard/ads?error=create_failed");
-    }
+  // kategorijos slug'as atkeliauja iš formos (hidden input)
+  const categorySlug = (formData.get("categorySlug") || "")
+    .toString()
+    .trim();
 
-    const slotId = formData.get("slotId");
-    const title = (formData.get("title") || "").toString().trim();
-    const url = (formData.get("url") || "").toString().trim();
-    const imageUrl = (formData.get("imageUrl") || "").toString().trim();
-    const priceInput = formData.get("price");
-    const isAnimated = formData.get("isAnimated") === "on";
+  if (profileError) {
+    console.error("createAdForSlot profile ERROR:", profileError);
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
+  }
 
-    const durationMonthsInput = formData.get("durationMonths");
-    const validUntilInput = formData.get("validUntil");
+  if (!profile?.is_admin) {
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
+  }
 
-    if (!slotId || !title || !url) {
-      redirect("/dashboard/ads?error=create_failed");
-    }
+  const slotId = formData.get("slotId");
+  const title = (formData.get("title") || "").toString().trim();
+  const url = (formData.get("url") || "").toString().trim();
+  const imageUrl = (formData.get("imageUrl") || "").toString().trim();
+  const priceInput = formData.get("price");
+  const isAnimated = formData.get("isAnimated") === "on";
+  const validUntilInput = formData.get("validUntil");
 
-    // Slotas
-    const { data: slot, error: slotError } = await supabase
-      .from("slots")
-      .select("*")
-      .eq("id", slotId)
-      .maybeSingle();
-
-    if (slotError || !slot) {
-      console.error("createAdForSlot: slot ERROR:", slotError);
-      redirect("/dashboard/ads?error=create_failed");
-    }
-
-    // Mėnesiai
-    const monthsFromForm = toNumber(durationMonthsInput);
-    const months =
-      monthsFromForm && monthsFromForm > 0
-        ? monthsFromForm
-        : slot.duration_months || 12;
-
-    // Galiojimo data
-    const validUntilDate = computeValidUntil({
-      explicit: validUntilInput,
-      baseDate: new Date(),
-      months,
-      fallbackMonths: 12,
-    });
-
-    // Kaina
-    const priceFromForm = toNumber(priceInput);
-    const priceFromSlot = toNumber(slot.price);
-    const finalPrice = priceFromForm ?? priceFromSlot ?? 0;
-
-    // Kuriam reklamą
-    const insertPayload = {
-      slot_id: slot.id,
-      created_by: user.id,
+  if (!slotId || !title || !url) {
+    console.error("createAdForSlot: missing fields", {
+      slotId,
       title,
       url,
-      duration_months: months,
-      price: finalPrice,
-      is_animated: isAnimated,
-      valid_until: validUntilDate
-        ? validUntilDate.toISOString()
-        : null,
-    };
-
-    if (imageUrl) {
-      insertPayload.image_url = imageUrl;
-    }
-
-    const { data: ad, error: adError } = await supabase
-      .from("ads")
-      .insert(insertPayload)
-      .select("*")
-      .single();
-
-    if (adError || !ad) {
-      console.error("createAdForSlot: insert ad ERROR:", adError);
-      redirect("/dashboard/ads?error=create_failed");
-    }
-
-    // Pririšam prie sloto
-    const { error: slotUpdateError } = await supabase
-      .from("slots")
-      .update({ ad_id: ad.id })
-      .eq("id", slot.id);
-
-    if (slotUpdateError) {
-      console.error(
-        "createAdForSlot: update slot ERROR:",
-        slotUpdateError
-      );
-      redirect("/dashboard/ads?error=create_failed");
-    }
-
-    // Revalidate + redirect
-    revalidatePath("/");
-    revalidatePath("/dashboard/ads");
-    revalidatePath(`/ad/${ad.id}`);
-
-    redirect("/dashboard/ads?success=created");
-  } catch (err) {
-    console.error("createAdForSlot FATAL:", err);
-    redirect("/dashboard/ads?error=create_failed");
+    });
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
   }
+
+  // Slotas (be join'ų – paprasčiau ir mažiau šansų, kad nulūš)
+  const { data: slot, error: slotError } = await supabase
+    .from("slots")
+    .select("*")
+    .eq("id", slotId)
+    .maybeSingle();
+
+  if (slotError || !slot) {
+    console.error("createAdForSlot: slot ERROR:", slotError);
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
+  }
+
+  // Mėnesiai – fallback galiojimo datai, jei kalendorius tuščias
+  const months =
+    toNumber(slot.duration_months) != null
+      ? toNumber(slot.duration_months)
+      : 12;
+
+  // Galiojimo data pagal kalendorių arba fallback mėnesiais
+  const validUntilDate = computeValidUntil({
+    explicit: validUntilInput,
+    baseDate: new Date(),
+    months,
+    fallbackMonths: 12,
+  });
+
+  // Kaina
+  const priceFromForm = toNumber(priceInput);
+  const priceFromSlot = toNumber(slot.price);
+  const finalPrice = priceFromForm ?? priceFromSlot ?? 0;
+
+  // Kuriam reklamą
+  const insertPayload = {
+    slot_id: slot.id,
+    created_by: user.id,
+    title,
+    url,
+    duration_months: months,
+    price: finalPrice,
+    is_animated: isAnimated,
+    valid_until: validUntilDate ? validUntilDate.toISOString() : null,
+  };
+
+  if (imageUrl) {
+    insertPayload.image_url = imageUrl;
+  }
+
+  const { data: ad, error: adError } = await supabase
+    .from("ads")
+    .insert(insertPayload)
+    .select("*")
+    .single();
+
+  if (adError || !ad) {
+    console.error("createAdForSlot: insert ad ERROR:", adError);
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
+  }
+
+  // Pririšam prie sloto
+  const { error: slotUpdateError } = await supabase
+    .from("slots")
+    .update({ ad_id: ad.id })
+    .eq("id", slot.id);
+
+  if (slotUpdateError) {
+    console.error("createAdForSlot: update slot ERROR:", slotUpdateError);
+    redirect(buildAdsRedirect({ categorySlug, error: "create_failed" }));
+  }
+
+  // Revalidate + SUCCESS redirect
+  revalidatePath("/");
+  revalidatePath("/dashboard/ads");
+  revalidatePath(`/ad/${ad.id}`);
+
+  redirect(buildAdsRedirect({ categorySlug, success: "created" }));
 }
 
 /**
@@ -237,13 +248,15 @@ export default async function BuySlotPage({ params }) {
     fallbackMonths: 12,
   });
 
-  const defaultValidUntilValue = formatDateTimeLocal(
-    defaultValidUntilDate
-  );
+  const defaultValidUntilValue = formatDateTimeLocal(defaultValidUntilDate);
 
   const existingValidUntil = existingAd?.valid_until
     ? new Date(existingAd.valid_until)
     : null;
+
+  const backUrl = category
+    ? `/dashboard/ads?view=slots&category=${category.slug}`
+    : "/dashboard/ads?view=slots";
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-10 space-y-8">
@@ -291,6 +304,11 @@ export default async function BuySlotPage({ params }) {
       {!isTaken && (
         <form action={createAdForSlot} className="space-y-5">
           <input type="hidden" name="slotId" value={slot.id} />
+          <input
+            type="hidden"
+            name="categorySlug"
+            value={category?.slug || ""}
+          />
 
           <div className="space-y-1">
             <label
@@ -330,48 +348,27 @@ export default async function BuySlotPage({ params }) {
           {/* Logotipo įkėlimas */}
           <LogoUpload name="imageUrl" bucket="ad-logos" />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label
-                htmlFor="durationMonths"
-                className="block text-sm font-medium text-gray-800"
-              >
-                Laikotarpis (mėn.)
-              </label>
-              <input
-                id="durationMonths"
-                name="durationMonths"
-                type="number"
-                min="1"
-                step="1"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
-              />
-              <p className="text-[11px] text-gray-500">
-                Naudojama galiojimo datai, jei jos nenurodysi žemiau.
-              </p>
-            </div>
-
-            <div className="space-y-1">
-              <label
-                htmlFor="validUntil"
-                className="block text-sm font-medium text-gray-800"
-              >
-                Galioja iki
-              </label>
-              <input
-                id="validUntil"
-                name="validUntil"
-                type="datetime-local"
-                defaultValue={defaultValidUntilValue}
-                step={60}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
-              />
-              <p className="text-[11px] text-gray-500">
-                Gali nustatyti net ir labai trumpą laiką testavimui (pvz.
-                +5 min). Jei paliksi tuščią – bus skaičiuojama pagal
-                mėnesius.
-              </p>
-            </div>
+          {/* Tik kalendorius galiojimo datai */}
+          <div className="space-y-1">
+            <label
+              htmlFor="validUntil"
+              className="block text-sm font-medium text-gray-800"
+            >
+              Galioja iki
+            </label>
+            <input
+              id="validUntil"
+              name="validUntil"
+              type="datetime-local"
+              defaultValue={defaultValidUntilValue}
+              step={60}
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
+            />
+            <p className="text-[11px] text-gray-500">
+              Galiojimo datą nustatyk kalendoriumi. Jei paliksi tuščią,
+              sistema paskaičiuos automatiškai (pvz. apie {defaultMonths} mėn.
+              nuo šiandien).
+            </p>
           </div>
 
           {/* Kaina – atskiroje eilėje */}
@@ -417,7 +414,7 @@ export default async function BuySlotPage({ params }) {
 
           <div className="flex items-center justify-between pt-4 border-t border-gray-100">
             <Link
-              href="/dashboard/ads"
+              href={backUrl}
               className="text-xs text-gray-500 hover:text-gray-800"
             >
               ← Grįžti į reklamas

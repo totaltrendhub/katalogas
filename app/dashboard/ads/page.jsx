@@ -19,6 +19,14 @@ function toNumber(value) {
   return Number.isFinite(n) ? n : null;
 }
 
+function hasError(err) {
+  return !!(
+    err &&
+    typeof err === "object" &&
+    Object.keys(err).length > 0
+  );
+}
+
 export default async function AdsDashboardPage(props) {
   const searchParams = await props.searchParams;
   const view = searchParams?.view || "slots";
@@ -38,7 +46,7 @@ export default async function AdsDashboardPage(props) {
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profileError) {
+  if (hasError(profileError)) {
     console.error("AdsDashboard profile ERROR:", profileError);
   }
 
@@ -56,7 +64,7 @@ export default async function AdsDashboardPage(props) {
     .select("id,name,slug")
     .order("name", { ascending: true });
 
-  if (categoriesError) {
+  if (hasError(categoriesError)) {
     console.error("AdsDashboard categories ERROR:", categoriesError);
   }
 
@@ -123,7 +131,7 @@ export default async function AdsDashboardPage(props) {
       )
       .or(`valid_until.is.null,valid_until.gt.${nowIso}`);
 
-    if (activeAdsError) {
+    if (hasError(activeAdsError)) {
       console.error("AdsDashboard activeAds ERROR:", activeAdsError);
     }
 
@@ -162,7 +170,7 @@ export default async function AdsDashboardPage(props) {
       .gte("created_at", sinceIso)
       .order("created_at", { ascending: true });
 
-    if (statsError) {
+    if (hasError(statsError)) {
       console.error("AdsDashboard statsAds ERROR:", statsError);
     }
 
@@ -238,7 +246,9 @@ export default async function AdsDashboardPage(props) {
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="text-gray-500">Filtruoti pagal kategoriją:</span>
+                <span className="text-gray-500">
+                  Filtruoti pagal kategoriją:
+                </span>
                 <a
                   href="/dashboard/ads?view=active"
                   className={
@@ -446,7 +456,7 @@ export default async function AdsDashboardPage(props) {
             </table>
           </section>
 
-          {/* Mėnesinė statistika (čia tavo „statistinis puslapis“) */}
+          {/* Mėnesinė statistika */}
           <section className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
             <div className="border-b border-gray-100 px-4 py-3 sm:px-6">
               <h2 className="text-sm font-semibold text-gray-700">
@@ -499,8 +509,7 @@ export default async function AdsDashboardPage(props) {
   }
 
   // ------------------------------------------------------------------
-  //  SLOTŲ VAIZDAS (pagal kategoriją) – čia praktiškai toks pats, tik
-  //  su papildoma "Galiojimas" kolona ir statuso juosta
+  //  SLOTŲ VAIZDAS (pagal kategoriją)
   // ------------------------------------------------------------------
 
   let slots = [];
@@ -516,7 +525,7 @@ export default async function AdsDashboardPage(props) {
       .order("row_number", { ascending: true })
       .order("slot_number", { ascending: true });
 
-    if (slotsError) {
+    if (hasError(slotsError)) {
       console.error("AdsDashboard slots ERROR:", slotsError);
     }
 
@@ -532,7 +541,7 @@ export default async function AdsDashboardPage(props) {
         .select("id,title,url,valid_until,price,duration_months")
         .in("id", adIds);
 
-      if (adsError) {
+      if (hasError(adsError)) {
         console.error("AdsDashboard ads ERROR:", adsError);
       } else if (adsData) {
         adsById = Object.fromEntries(adsData.map((ad) => [ad.id, ad]));
