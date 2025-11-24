@@ -82,8 +82,8 @@ export default async function HomePage() {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              {/* 6 slotai dideliuose ekranuose, 2 – mobile */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {/* 6 slotai nuo lg, mobile – 2 */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <HomeSlotCard key={slot.id} slot={slot} isTopRow />
                 ))}
@@ -97,7 +97,7 @@ export default async function HomePage() {
                   <h3 className="text-sm font-semibold text-gray-700">
                     Eilė {rowNumber}
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                     {rowSlots.map((slot) => (
                       <HomeSlotCard key={slot.id} slot={slot} />
                     ))}
@@ -201,7 +201,7 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   const anchorText = ad?.anchor_text || ad?.title || "";
 
   const baseClasses =
-    "rounded-2xl border px-3 py-3 text-sm bg-white shadow-sm h-full " +
+    "rounded-2xl border px-3 py-2 text-xs sm:text-sm bg-white shadow-sm h-full " +
     (isTopRow
       ? "border-amber-200 bg-gradient-to-b from-amber-50 to-white"
       : "border-gray-200");
@@ -209,45 +209,43 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   return (
     <div className={baseClasses}>
       <div className="flex flex-col justify-between h-full">
-        {/* Viršus: fiksuoto aukščio blokas, kad kortelės nesikeistų nuo logo dydžio */}
-        <div className="space-y-2 min-h-[110px]">
-          <div className="text-[11px] font-semibold uppercase tracking-wide text-amber-500 min-h-[14px]">
+        {/* Viršus: fiksuotas blokas, kad kortelės būtų žemesnės */}
+        <div className="space-y-1 min-h-[80px]">
+          <div className="text-[10px] font-semibold uppercase tracking-wide text-amber-500 min-h-[12px]">
             {!isTaken && label}
           </div>
 
           {isTaken ? (
-            // UŽIMTAS SLOTAS – fiksuotas logo langelis
-            <div className="flex items-center justify-center pt-1 h-[64px]">
+            <div className="flex items-center justify-center pt-1 h-[48px]">
               {ad.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={ad.image_url}
                   alt={anchorText || ad.title}
-                  className="max-h-[64px] max-w-full object-contain"
+                  className="max-h-[48px] max-w-full object-contain"
                 />
               )}
             </div>
           ) : (
-            // LAISVAS SLOTAS – tekstas irgi telpa į fiksuotą aukštį
-            <div className="pt-1 h-[64px] flex flex-col justify-center">
-              <div className="text-sm font-semibold text-gray-900">
+            <div className="pt-1 h-[48px] flex flex-col justify-center">
+              <div className="font-semibold text-gray-900 text-xs sm:text-sm">
                 LAISVA
               </div>
-              <div className="mt-1 text-[11px] text-gray-500">
+              <div className="mt-1 text-[10px] text-gray-500">
                 Metinė reklamos vieta
               </div>
             </div>
           )}
         </div>
 
-        {/* Apačia: užimtam – anchor tekstas, laisvam – kaina */}
-        <div className="mt-3 text-xs font-semibold text-center leading-snug">
+        {/* Apačia: užimtam – anchor, laisvam – kaina */}
+        <div className="mt-2 text-[11px] sm:text-xs font-semibold text-center leading-snug">
           {isTaken ? (
             <a
               href={ad.url}
               target="_blank"
               rel="noopener"
-              className="block w-full text-blue-700 hover:text-blue-900 text-[13px] leading-snug line-clamp-2"
+              className="block w-full text-blue-700 hover:text-blue-900 text-[11px] sm:text-[13px] leading-snug line-clamp-2"
             >
               {anchorText}
             </a>
