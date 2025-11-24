@@ -251,16 +251,16 @@ function HomeSlotCard({ slot, isTopRow = false }) {
   return (
     <div className={baseClasses}>
       <div className="flex flex-col h-full">
-        {/* Viršus – label */}
-        <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 min-h-[12px]">
+        {/* viršus – label (labai žemas, kad negadintų vietos) */}
+        <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 min-h-[10px]">
           {!isTaken && label}
         </div>
 
-        {/* Vidurys – logo arba "LAISVA" */}
-        <div className="flex-1 flex items-center justify-center">
+        {/* vidurys – logo/LAISVA, prilipęs prie viršaus */}
+        <div className="flex-1 flex items-start justify-center mt-[2px]">
           {isTaken ? (
             ad.image_url ? (
-              <div className="w-[120px] h-[120px] max-w-full max-h-full flex items-center justify-center">
+              <div className="w-[120px] h-full max-h-[100px] max-w-full flex items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={ad.image_url}
@@ -276,8 +276,8 @@ function HomeSlotCard({ slot, isTopRow = false }) {
           )}
         </div>
 
-        {/* Apačia – anchor tekstas arba kaina */}
-        <div className="mt-1 text-[10px] font-semibold text-center leading-tight">
+        {/* apačia – anchor tekstas arba kaina, turi savo vietą */}
+        <div className="mt-1 text-[10px] font-semibold text-center leading-tight min-h-[22px]">
           {isTaken ? (
             <a
               href={ad.url}
