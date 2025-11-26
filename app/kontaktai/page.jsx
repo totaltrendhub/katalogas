@@ -37,7 +37,7 @@ export default function KontaktaiPage() {
               href="tel:+37060000000"
               className="text-blue-600 hover:text-blue-800"
             >
-              +370 600 00000
+              +370 689 78433
             </a>
           </p>
         </div>

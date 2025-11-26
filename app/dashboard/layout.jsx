@@ -54,6 +54,18 @@ export default async function DashboardLayout({ children }) {
             >
               Straipsniai
             </a>
+            <a
+              href="/dashboard/invoices"
+              className="rounded-full border border-gray-200 px-3 py-1 hover:bg-gray-100"
+            >
+              Sąskaitos
+            </a>
+            <a
+              href="/dashboard/invoice-settings"
+              className="rounded-full border border-gray-200 px-3 py-1 hover:bg-gray-100"
+            >
+              Sąskaitų nustatymai
+            </a>
           </nav>
         </header>
 
