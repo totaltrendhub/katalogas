@@ -1,10 +1,7 @@
-// app/page.jsx
-
 import { getSlotsByCategory } from "@/lib/getSlotsByCategory";
 import { supabaseServer } from "@/lib/supabaseServer";
 
-// Vietoj `force-dynamic` – ISR (statinis su periodiniu atnaujinimu)
-export const revalidate = 3600; // 1 val. – gali sumažinti iki 300 jei norėsi
+export const dynamic = "force-dynamic";
 
 // Metinės kainos pagal eilutę (neanimuotos)
 const ROW_ANNUAL_PRICES = {
@@ -53,7 +50,7 @@ function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
 }
 
 export default async function HomePage() {
-  // VIP zonos slotai (čia yra ir susietos reklamos – kaip ir anksčiau)
+  // VIP zonos slotai
   const { category, slots } = await getSlotsByCategory("vip-zona");
 
   // Visos kategorijos sidebarui
