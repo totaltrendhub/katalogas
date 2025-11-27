@@ -36,6 +36,16 @@ const CATEGORY_SEO = {
     metaDescription:
       "Teatrų, festivalių, muziejų, galerijų ir kultūros centrų svetainės. Ilgalaikė internetinė reklama kultūros ir meno projektams.",
   },
+  // --- nauja AI kategorija ---
+  "dirbtinis-intelektas": {
+    metaTitle:
+      "Dirbtinio intelekto įrankių, platformų ir naujienų svetainės",
+    h1: "Dirbtinio intelekto puslapių reklama",
+    intro:
+      "Šioje kategorijoje reklamuojami dirbtinio intelekto tematikos tinklalapiai: AI įrankių ir platformų svetainės, mašininio mokymosi sprendimai, automatizavimo ir duomenų analizės projektai, AI naujienų portalai ir edukaciniai projektai.",
+    metaDescription:
+      "Dirbtinio intelekto įrankių, platformų, automatizavimo sprendimų ir AI naujienų svetainės. Ilgalaikė internetinė reklama AI projektams ir technologiniam verslui.",
+  },
   "nekilnojamas-turtas": {
     metaTitle:
       "Nekilnojamo turto portalai, agentūrų ir skelbimų svetainės",
