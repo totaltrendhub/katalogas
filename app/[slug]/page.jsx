@@ -6,124 +6,148 @@ export const dynamic = "force-dynamic";
 
 /**
  * SEO tekstai pagal kategorijos slug.
- * Formuluotė: mes REKLAMUOJAME tokio tipo puslapius.
+ * H1 – apie reklamą,
+ * metaTitle – apie pačias svetaines (kaip siūlė kolega).
  */
 const CATEGORY_SEO = {
   informacija: {
+    metaTitle: "Informaciniai portalai, katalogai ir enciklopedijos",
     h1: "Informacinių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami ir talpinami informaciniai tinklalapiai: katalogai, informacijos centrai, archyvai, paieškos sistemos, enciklopedijos, kalendoriai, parodų ir konferencijų projektai, orų prognozės, receptai ir TV programos.",
     metaDescription:
-      "Informacinių puslapių reklama: katalogai, informacijos centrai, archyvai, enciklopedijos, orų prognozės ir TV programų svetainės. Ilgalaikė reklama internete su aiškia metine kaina.",
+      "Informaciniai portalai, katalogai, archyvai, enciklopedijos, orų prognozių ir TV programų svetainės. Ilgalaikė reklama informaciniuose tinklalapiuose su aiškia metine kaina.",
   },
   iniciatyvos: {
+    metaTitle:
+      "Nevyriausybinės organizacijos, bendruomenių projektai ir iniciatyvos",
     h1: "Iniciatyvų puslapių reklama",
     intro:
       "Čia reklamuojami socialinių ir pilietinių iniciatyvų tinklalapiai: nevyriausybinės organizacijos, bendruomenių projektai, savanorystės platformos, paramos ir pagalbos iniciatyvos, kampanijos ir akcijos.",
     metaDescription:
-      "Iniciatyvų puslapių reklama: NVO, bendruomenių projektai, savanorystės ir paramos iniciatyvų svetainės. Internetinė reklama, padedanti matytis geriems projektams.",
+      "Nevyriausybinės organizacijos, bendruomenių projektai, savanorystės ir paramos iniciatyvų svetainės. Internetinė reklama, padedanti matytis geriems projektams.",
   },
   "kultura-menas": {
+    metaTitle:
+      "Teatrai, festivaliai, muziejai, galerijos ir kultūros projektų svetainės",
     h1: "Kultūros ir meno puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami kultūros ir meno projektų tinklalapiai: teatrai, kino ir muzikos festivaliai, muziejai, galerijos, kultūros centrai, koncertų organizatoriai, kūrybinės dirbtuvės ir menininkų projektai.",
     metaDescription:
-      "Kultūros ir meno puslapių reklama: teatrai, festivaliai, muziejai, galerijos ir kultūros centrų svetainės. Ilgalaikė internetinė reklama kultūros projektams.",
+      "Teatrų, festivalių, muziejų, galerijų ir kultūros centrų svetainės. Ilgalaikė internetinė reklama kultūros ir meno projektams.",
   },
   "nekilnojamas-turtas": {
+    metaTitle:
+      "Nekilnojamo turto portalai, agentūrų ir skelbimų svetainės",
     h1: "Nekilnojamo turto puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami nekilnojamo turto tematikos tinklalapiai: NT portalai, brokerių ir agentūrų svetainės, statybos projektai, nuomos ir pardavimo skelbimų puslapiai.",
     metaDescription:
-      "Nekilnojamo turto puslapių reklama: NT portalai, brokerių ir agentūrų svetainės, statybos projektų ir skelbimų puslapiai. Reklama internete su aiškia metine kaina.",
+      "Nekilnojamo turto portalai, brokerių ir agentūrų svetainės, statybos projektų ir NT skelbimų puslapiai. Reklama internete su aiškia metine kaina.",
   },
   parduotuves: {
+    metaTitle: "Internetinės parduotuvės ir prekybos platformos",
     h1: "Internetinių parduotuvių reklama",
     intro:
       "Šioje kategorijoje reklamuojamos internetinės parduotuvės ir prekybos platformos: bendri e-komercijos portalai, nišinės e-parduotuvės, marketplace'ai ir kataloginiai parduotuvių puslapiai.",
     metaDescription:
-      "Internetinių parduotuvių puslapių reklama: el. parduotuvės, prekybos portalai ir marketplace'ai. Ilgalaikė internetinė reklama pardavimams didinti.",
+      "Internetinės parduotuvės, prekybos portalai ir marketplace'ai. Ilgalaikė internetinė reklama pardavimams didinti.",
   },
   paslaugos: {
+    metaTitle: "Paslaugų įmonių svetainės ir B2B / B2C portalai",
     h1: "Paslaugų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami įvairių paslaugų tinklalapiai: teisinės ir finansinės paslaugos, buhalterija, marketingas, konsultacijos, meistrai ir remontas, švaros paslaugos, renginių organizatoriai ir kiti B2B / B2C paslaugų puslapiai.",
     metaDescription:
-      "Paslaugų puslapių reklama: teisinės, finansinės, marketingo, remonto ir kitų paslaugų svetainės. Puslapių reklama su aiškia reklama internete kaina.",
+      "Teisinių, finansinių, marketingo, remonto ir kitų paslaugų įmonių svetainės. Puslapių reklama su aiškia interneto reklamos kaina.",
   },
   pramogos: {
+    metaTitle: "Pramogų, renginių ir laisvalaikio pasiūlymų svetainės",
     h1: "Pramogų puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami pramogų ir laisvalaikio tinklalapiai: renginių ir bilietų platformos, kino ir koncertų programos, atrakcionai, pramogų parkai bei laisvalaikio idėjų ir pasiūlymų portalai.",
     metaDescription:
-      "Pramogų puslapių reklama: renginių, bilietų, pramogų parkų ir laisvalaikio idėjų svetainės. Interneto reklama aktyviai auditorijai.",
+      "Renginių, bilietų, pramogų parkų ir laisvalaikio idėjų svetainės. Interneto reklama aktyviai auditorijai.",
   },
   "seima-vaikai": {
+    metaTitle: "Šeimos, vaikų, darželių, mokyklų ir būrelių svetainės",
     h1: "Šeimos ir vaikų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami šeimos ir vaikų tematikos tinklalapiai: darželiai ir mokyklos, būreliai, edukaciniai projektai, tėvystės ir šeimos portalai, stovyklos bei užimtumo programos.",
     metaDescription:
-      "Šeimos ir vaikų puslapių reklama: darželių, mokyklų, būrelių, stovyklų ir šeimos portalų svetainės. Internetinė reklama tikslinei auditorijai.",
+      "Darželių, mokyklų, būrelių, stovyklų ir šeimos portalų svetainės. Internetinė reklama tikslinei šeimos auditorijai.",
   },
   "sportas-pomegiai": {
+    metaTitle:
+      "Sporto klubai, treneriai, hobio ir laisvalaikio projektų svetainės",
     h1: "Sporto ir pomėgių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami sporto ir pomėgių tinklalapiai: sporto klubai ir treneriai, sporto prekių parduotuvės, klubai ir būreliai, žvejybos, medžioklės, žaidimų ir kitų hobio sričių puslapiai.",
     metaDescription:
-      "Sporto ir pomėgių puslapių reklama: sporto klubų, trenerių, hobio ir laisvalaikio projektų svetainės. Ilgalaikė reklama internetu aktyviems lankytojams.",
+      "Sporto klubų, trenerių, hobio ir laisvalaikio projektų svetainės. Ilgalaikė reklama internetu aktyviems lankytojams.",
   },
   "sveikata-grozis": {
+    metaTitle:
+      "Sveikatos klinikų, odontologų, grožio salonų ir SPA svetainės",
     h1: "Sveikatos ir grožio puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami sveikatos ir grožio tematikos tinklalapiai: klinikos, odontologai, medicinos centrai, grožio salonai, SPA, reabilitacijos ir sveikatinimo programų svetainės, mitybos ir savijautos projektai.",
     metaDescription:
-      "Sveikatos ir grožio puslapių reklama: klinikų, odontologų, medicinos centrų, grožio salonų ir SPA svetainės. Ilgalaikė internetinė reklama su aiškia metine kaina.",
+      "Klinikų, odontologų, medicinos centrų, grožio salonų ir SPA svetainės. Ilgalaikė internetinė reklama su aiškia metine kaina.",
   },
   technologijos: {
+    metaTitle: "Technologijų, IT ir programinės įrangos projektų svetainės",
     h1: "Technologijų puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami technologijų ir IT projektų tinklalapiai: technologijų portalai, programinės įrangos projektai, SaaS sprendimai, hostingo ir serverių paslaugos, elektronikos ir IT įmonių svetainės.",
     metaDescription:
-      "Technologijų puslapių reklama: IT, programinės įrangos, SaaS ir technologijų įmonių svetainės. Internetinė reklama skaitmeniniam verslui.",
+      "Technologijų portalai, IT, programinės įrangos, SaaS ir technologijų įmonių svetainės. Internetinė reklama skaitmeniniam verslui.",
   },
   transportas: {
+    metaTitle: "Transporto prekių parduotuvės ir naujienų svetainės",
     h1: "Transporto puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami transporto ir logistikos tinklalapiai: automobilių pardavimo ir nuomos svetainės, logistikos ir pervežimų įmonės, krovinių ir siuntų tarnybos, viešojo transporto projektai.",
     metaDescription:
-      "Transporto puslapių reklama: automobilių, nuomos, logistikos ir pervežimų įmonių svetainės. Ilgalaikė reklama internete transporto sektoriui.",
+      "Transporto prekių parduotuvės, automobilių, nuomos, logistikos ir pervežimų įmonių svetainės. Ilgalaikė reklama internete transporto sektoriui.",
   },
   "turizmas-keliones": {
+    metaTitle: "Kelionių agentūrų, apgyvendinimo ir turizmo svetainės",
     h1: "Turizmo ir kelionių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami turizmo ir kelionių tinklalapiai: kelionių agentūros, apgyvendinimo svetainės, gidai, lankytinų vietų portalai, stovyklos ir poilsio projektai.",
     metaDescription:
-      "Turizmo ir kelionių puslapių reklama: kelionių agentūrų, apgyvendinimo, gidų ir lankytinų vietų svetainės. Interneto reklama keliautojų auditorijai.",
+      "Kelionių agentūrų, apgyvendinimo, gidų ir lankytinų vietų svetainės. Interneto reklama keliautojų auditorijai.",
   },
   "verslas-finansai": {
+    metaTitle:
+      "Verslo, finansų, investavimo ir draudimo projektų svetainės",
     h1: "Verslo ir finansų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami verslo ir finansų tematikos tinklalapiai: bankai ir kredito įstaigos, investavimo ir draudimo projektai, verslo konsultacijų puslapiai, B2B paslaugų platformos, verslo naujienų portalai.",
     metaDescription:
-      "Verslo ir finansų puslapių reklama: bankų, finansų, investavimo ir verslo naujienų svetainės. Internetinė reklama su aiškia metine kaina.",
+      "Bankų, finansų, investavimo, draudimo ir verslo naujienų svetainės. Internetinė reklama su aiškia metine kaina.",
   },
   ziniasklaida: {
+    metaTitle:
+      "Naujienų portalai, žurnalai, tinklaraščiai ir turinio platformos",
     h1: "Žiniasklaidos puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami žiniasklaidos ir turinio projektų tinklalapiai: naujienų portalai, internetiniai žurnalai, tinklaraščiai, podcastų ir vaizdo turinio platformos.",
     metaDescription:
-      "Žiniasklaidos puslapių reklama: naujienų portalai, žurnalai, tinklaraščiai ir turinio platformos. Ilgalaikė internetinė reklama su stabilia pozicija kataloge.",
+      "Naujienų portalai, žurnalai, tinklaraščiai ir vaizdo ar garso turinio platformos. Ilgalaikė internetinė reklama su stabilia pozicija kataloge.",
   },
 };
 
 function buildFallbackSeo(categoryName) {
-  const base = categoryName || "Teminių";
+  const base = categoryName || "Teminės";
   return {
+    metaTitle: `${base} svetainės ir teminiai projektai`,
     h1: `${base} puslapių reklama`,
     intro:
       "Šioje kategorijoje talpinami ir reklamuojami teminiai tinklalapiai. Ilgalaikė internetinė reklama su aiškia metine kaina ir pastovia pozicija kataloge.",
     metaDescription:
-      "Teminių puslapių reklama: ilgalaikė reklama internete su aiškia metine kaina. Internetinė reklama nišiniuose tinklalapiuose.",
+      "Teminių svetainių ir projektų puslapiai: ilgalaikė reklama internete su aiškia metine kaina. Internetinė reklama nišiniuose tinklalapiuose.",
   };
 }
 
@@ -134,7 +158,7 @@ export async function generateMetadata({ params }) {
 
   if (slug === "vip-zona") {
     return {
-      title: "Internetinė reklama – VIP zona",
+      title: "VIP reklamos zona – išskirtinės reklamos vietos",
       description:
         "Internetinė reklama VIP zonoje: aukščiausios eilės reklamos vietos su didžiausiu matomumu ir aiškia metine kaina.",
       alternates: {
@@ -157,9 +181,10 @@ export async function generateMetadata({ params }) {
   }
 
   const cfg = CATEGORY_SEO[slug] || buildFallbackSeo(category.name);
+  const metaTitle = cfg.metaTitle || cfg.h1;
 
   return {
-    title: cfg.h1,
+    title: metaTitle,
     description: cfg.metaDescription,
     alternates: {
       canonical: `/${slug}`,
