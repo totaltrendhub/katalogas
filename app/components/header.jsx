@@ -1,22 +1,12 @@
-// app/components/Header.jsx
+// app/components/header.jsx
 
 import Link from "next/link";
 import Image from "next/image";
-import { getCurrentUser } from "@/lib/getCurrentUser";
-import { supabaseServer } from "@/lib/supabaseServer";
 import MobileMenuClient from "./MobileMenuClient";
-import { logoutAction } from "@/lib/authActions";
 
-export default async function Header() {
-  const user = await getCurrentUser();
-
-  const supabase = await supabaseServer();
-  const { data: categoriesData } = await supabase
-    .from("categories")
-    .select("id, name, slug")
-    .order("name", { ascending: true });
-
-  const categories = categoriesData || [];
+export default function Header() {
+  // Nebetampom DB ir auth – header'is statinis
+  const categories = []; // MobileMenuClient gali gauti tuščią masyvą
 
   return (
     <header className="border-b border-gray-200 bg-white/80 backdrop-blur">
@@ -64,38 +54,23 @@ export default async function Header() {
             </Link>
           </div>
 
-          {/* Admin zona – tik desktop */}
-          {user && (
-            <div className="flex items-center gap-3">
-              <span className="hidden sm:inline text-xs text-gray-500">
-                {user.email}
-              </span>
-
-              <Link
-                href="/dashboard"
-                className="rounded-full bg-gray-900 px-3 py-1 text-xs sm:text-sm font-semibold text-white hover:bg-black transition-colors"
-              >
-                Admin
-              </Link>
-
-              <form action={logoutAction}>
-                <button
-                  type="submit"
-                  className="rounded-full bg-red-500 px-3 py-1 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-red-600 transition-colors"
-                >
-                  Atsijungti
-                </button>
-              </form>
-            </div>
-          )}
+          {/* Paprastas Admin linkas – /dashboard pats susitvarkys su auth */}
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="rounded-full bg-gray-900 px-3 py-1 text-xs sm:text-sm font-semibold text-white hover:bg-black transition-colors"
+            >
+              Admin
+            </Link>
+          </div>
         </nav>
 
-        {/* Mobile meniu mygtukas + overlay */}
+        {/* Mobile meniu mygtukas */}
         <div className="sm:hidden">
           <MobileMenuClient
             categories={categories}
-            hasUser={!!user}
-            userEmail={user?.email || null}
+            hasUser={false}
+            userEmail={null}
           />
         </div>
       </div>

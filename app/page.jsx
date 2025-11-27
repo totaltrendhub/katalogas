@@ -1,9 +1,11 @@
-import { getSlotsByCategory } from "@/lib/getSlotsByCategory";
-import { supabaseServer } from "@/lib/supabaseServer";
+// app/page.jsx
 
-export const dynamic = "force-dynamic";
+import { getSlotsByCategoryPublic } from "@/lib/getSlotsByCategoryPublic";
+import { supabasePublic } from "@/lib/supabasePublic";
 
-// Metinės kainos pagal eilutę (neanimuotos)
+// Homepage darom statinį su ISR – Vercel gali cache'inti rezultatą
+export const revalidate = 600; // 10 min (gali keisti vėliau)
+
 const ROW_ANNUAL_PRICES = {
   1: 49,
   2: 39,
@@ -20,8 +22,7 @@ function getAnnualPrice(rowNumber) {
   return ROW_ANNUAL_PRICES[n] ?? null;
 }
 
-// Pagal realius slotus eilėje suformuoja 6 pozicijas:
-// jei kažkur nėra įrašo – sukuriamas „virtualus“ tuščias slotas
+// Sukuriam 1–6 slotus eilėje, trūkstamus užpildom virtualiais
 function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
   const bySlotNumber = new Map();
   for (const slot of rowSlots || []) {
@@ -37,7 +38,6 @@ function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
     if (existing) {
       result.push(existing);
     } else {
-      // virtualus tuščias slotas
       result.push({
         id: `virtual-${rowNumber}-${pos}`,
         row_number: rowNumber,
@@ -50,11 +50,11 @@ function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
 }
 
 export default async function HomePage() {
-  // VIP zonos slotai
-  const { category, slots } = await getSlotsByCategory("vip-zona");
+  // VIP zonos slotai (su reklamos objektais, jei aktyvūs)
+  const { category, slots } = await getSlotsByCategoryPublic("vip-zona");
 
-  // Visos kategorijos sidebarui
-  const supabase = await supabaseServer();
+  // Visos kategorijos sidebarui – irgi per public klientą
+  const supabase = supabasePublic;
   const { data: categoriesData, error: categoriesError } = await supabase
     .from("categories")
     .select("id, name, slug")
@@ -65,7 +65,8 @@ export default async function HomePage() {
   }
 
   const allCategories = categoriesData || [];
-  const vipCategory = allCategories.find((c) => c.slug === "vip-zona") || null;
+  const vipCategory =
+    allCategories.find((c) => c.slug === "vip-zona") || null;
   const otherCategories = allCategories
     .filter((c) => c.slug !== "vip-zona")
     .sort((a, b) => a.name.localeCompare(b.name, "lt"));
@@ -102,7 +103,7 @@ export default async function HomePage() {
           </p>
         </section>
 
-        {/* Pagrindinis layout: siauresnis sidebar, daugiau vietos slotams */}
+        {/* Layout: slotai + sidebar */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr),minmax(0,1fr)] gap-8 items-start">
           {/* Kairė – slotai */}
           <div>
@@ -110,7 +111,6 @@ export default async function HomePage() {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
-              {/* 6 slotai: 2 per eilę mobile, 6 per eilę nuo md */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
                   <HomeSlotCard key={slot.id} slot={slot} isTopRow />
@@ -143,8 +143,8 @@ export default async function HomePage() {
             </section>
           </div>
 
-          {/* Dešinė – teminės kategorijos + info dėžutė */}
-          <aside className="lg:pt-2 lg:sticky lg:top-6 space-y-4">
+          {/* Dešinė – kategorijos + instrukcija */}
+          <aside className="lg:pt-2 lg:top-6 lg:sticky space-y-4">
             {/* Teminės kategorijos */}
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
@@ -154,7 +154,6 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              {/* VIP pirmas, atskirtas blokas */}
               {vipCategory && (
                 <a
                   href="/vip-zona"
@@ -245,14 +244,12 @@ function HomeSlotCard({ slot, isTopRow = false }) {
 
   const content = (
     <div className="flex flex-col h-full">
-      {/* Label rodom tik kai slotas LAISVAS – kad neužimtų vietos užimtam */}
       {!isTaken && (
         <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
           {label}
         </div>
       )}
 
-      {/* Vidurinė dalis – logo arba LAISVA */}
       <div
         className={
           "flex-1 flex justify-center " +
@@ -277,7 +274,6 @@ function HomeSlotCard({ slot, isTopRow = false }) {
         )}
       </div>
 
-      {/* Apačia – anchor tekstas arba kaina */}
       <div className="mt-1 text-center leading-tight">
         {isTaken ? (
           anchorText ? (
