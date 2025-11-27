@@ -25,7 +25,7 @@ export default function Header() {
           </Link>
         </div>
 
-        {/* Desktop navigacija */}
+        {/* Desktop navigacija – be jokio admin/login */}
         <nav className="hidden sm:flex items-center gap-4 text-sm">
           <div className="flex items-center gap-3">
             <Link
@@ -51,16 +51,6 @@ export default function Header() {
               className="rounded-full px-3 py-1 text-xs sm:text-sm hover:bg-gray-100"
             >
               Apie katalogą
-            </Link>
-          </div>
-
-          {/* Paprastas Admin linkas – /dashboard pats susitvarkys su auth */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-full bg-gray-900 px-3 py-1 text-xs sm:text-sm font-semibold text-white hover:bg-black transition-colors"
-            >
-              Admin
             </Link>
           </div>
         </nav>
