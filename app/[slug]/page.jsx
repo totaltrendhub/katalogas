@@ -1,163 +1,145 @@
 import { redirect, notFound } from "next/navigation";
 import { getSlotsByCategory } from "@/lib/getSlotsByCategory";
 import { supabaseServer } from "@/lib/supabaseServer";
+import { getAdPricingSettings } from "@/lib/getAdPricingSettings";
+import AgeGateClient from "@/app/components/AgeGateClient";
 
 export const dynamic = "force-dynamic";
 
 /**
  * SEO tekstai pagal kategorijos slug.
- * H1 – apie reklamą,
- * metaTitle – apie pačias svetaines (kaip siūlė kolega).
+ * Formuluotė: mes REKLAMUOJAME tokio tipo puslapius.
  */
 const CATEGORY_SEO = {
   informacija: {
-    metaTitle: "Informaciniai portalai, katalogai ir enciklopedijos",
     h1: "Informacinių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami ir talpinami informaciniai tinklalapiai: katalogai, informacijos centrai, archyvai, paieškos sistemos, enciklopedijos, kalendoriai, parodų ir konferencijų projektai, orų prognozės, receptai ir TV programos.",
     metaDescription:
-      "Informaciniai portalai, katalogai, archyvai, enciklopedijos, orų prognozių ir TV programų svetainės. Ilgalaikė reklama informaciniuose tinklalapiuose su aiškia metine kaina.",
+      "Informacinių puslapių reklama: katalogai, informacijos centrai, archyvai, enciklopedijos, orų prognozės ir TV programų svetainės. Ilgalaikė reklama internete su aiškia metine kaina.",
   },
   iniciatyvos: {
-    metaTitle:
-      "Nevyriausybinės organizacijos, bendruomenių projektai ir iniciatyvos",
     h1: "Iniciatyvų puslapių reklama",
     intro:
       "Čia reklamuojami socialinių ir pilietinių iniciatyvų tinklalapiai: nevyriausybinės organizacijos, bendruomenių projektai, savanorystės platformos, paramos ir pagalbos iniciatyvos, kampanijos ir akcijos.",
     metaDescription:
-      "Nevyriausybinės organizacijos, bendruomenių projektai, savanorystės ir paramos iniciatyvų svetainės. Internetinė reklama, padedanti matytis geriems projektams.",
+      "Iniciatyvų puslapių reklama: NVO, bendruomenių projektai, savanorystės ir paramos iniciatyvų svetainės. Internetinė reklama, padedanti matytis geriems projektams.",
   },
   "kultura-menas": {
-    metaTitle:
-      "Teatrai, festivaliai, muziejai, galerijos ir kultūros projektų svetainės",
     h1: "Kultūros ir meno puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami kultūros ir meno projektų tinklalapiai: teatrai, kino ir muzikos festivaliai, muziejai, galerijos, kultūros centrai, koncertų organizatoriai, kūrybinės dirbtuvės ir menininkų projektai.",
     metaDescription:
-      "Teatrų, festivalių, muziejų, galerijų ir kultūros centrų svetainės. Ilgalaikė internetinė reklama kultūros ir meno projektams.",
-  },
-  // --- nauja AI kategorija ---
-  "dirbtinis-intelektas": {
-    metaTitle:
-      "Dirbtinio intelekto įrankių, platformų ir naujienų svetainės",
-    h1: "Dirbtinio intelekto puslapių reklama",
-    intro:
-      "Šioje kategorijoje reklamuojami dirbtinio intelekto tematikos tinklalapiai: AI įrankių ir platformų svetainės, mašininio mokymosi sprendimai, automatizavimo ir duomenų analizės projektai, AI naujienų portalai ir edukaciniai projektai.",
-    metaDescription:
-      "Dirbtinio intelekto įrankių, platformų, automatizavimo sprendimų ir AI naujienų svetainės. Ilgalaikė internetinė reklama AI projektams ir technologiniam verslui.",
+      "Kultūros ir meno puslapių reklama: teatrai, festivaliai, muziejai, galerijos ir kultūros centrų svetainės. Ilgalaikė internetinė reklama kultūros projektams.",
   },
   "nekilnojamas-turtas": {
-    metaTitle:
-      "Nekilnojamo turto portalai, agentūrų ir skelbimų svetainės",
     h1: "Nekilnojamo turto puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami nekilnojamo turto tematikos tinklalapiai: NT portalai, brokerių ir agentūrų svetainės, statybos projektai, nuomos ir pardavimo skelbimų puslapiai.",
     metaDescription:
-      "Nekilnojamo turto portalai, brokerių ir agentūrų svetainės, statybos projektų ir NT skelbimų puslapiai. Reklama internete su aiškia metine kaina.",
+      "Nekilnojamo turto puslapių reklama: NT portalai, brokerių ir agentūrų svetainės, statybos projektų ir skelbimų puslapiai. Reklama internete su aiškia metine kaina.",
   },
   parduotuves: {
-    metaTitle: "Internetinės parduotuvės ir prekybos platformos",
     h1: "Internetinių parduotuvių reklama",
     intro:
       "Šioje kategorijoje reklamuojamos internetinės parduotuvės ir prekybos platformos: bendri e-komercijos portalai, nišinės e-parduotuvės, marketplace'ai ir kataloginiai parduotuvių puslapiai.",
     metaDescription:
-      "Internetinės parduotuvės, prekybos portalai ir marketplace'ai. Ilgalaikė internetinė reklama pardavimams didinti.",
+      "Internetinių parduotuvių puslapių reklama: el. parduotuvės, prekybos portalai ir marketplace'ai. Ilgalaikė internetinė reklama pardavimams didinti.",
   },
   paslaugos: {
-    metaTitle: "Paslaugų įmonių svetainės ir B2B / B2C portalai",
     h1: "Paslaugų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami įvairių paslaugų tinklalapiai: teisinės ir finansinės paslaugos, buhalterija, marketingas, konsultacijos, meistrai ir remontas, švaros paslaugos, renginių organizatoriai ir kiti B2B / B2C paslaugų puslapiai.",
     metaDescription:
-      "Teisinių, finansinių, marketingo, remonto ir kitų paslaugų įmonių svetainės. Puslapių reklama su aiškia interneto reklamos kaina.",
+      "Paslaugų puslapių reklama: teisinės, finansinės, marketingo, remonto ir kitų paslaugų svetainės. Puslapių reklama su aiškia reklama internete kaina.",
   },
   pramogos: {
-    metaTitle: "Pramogų, renginių ir laisvalaikio pasiūlymų svetainės",
     h1: "Pramogų puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami pramogų ir laisvalaikio tinklalapiai: renginių ir bilietų platformos, kino ir koncertų programos, atrakcionai, pramogų parkai bei laisvalaikio idėjų ir pasiūlymų portalai.",
     metaDescription:
-      "Renginių, bilietų, pramogų parkų ir laisvalaikio idėjų svetainės. Interneto reklama aktyviai auditorijai.",
+      "Pramogų puslapių reklama: renginių, bilietų, pramogų parkų ir laisvalaikio idėjų svetainės. Interneto reklama aktyviai auditorijai.",
   },
   "seima-vaikai": {
-    metaTitle: "Šeimos, vaikų, darželių, mokyklų ir būrelių svetainės",
     h1: "Šeimos ir vaikų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami šeimos ir vaikų tematikos tinklalapiai: darželiai ir mokyklos, būreliai, edukaciniai projektai, tėvystės ir šeimos portalai, stovyklos bei užimtumo programos.",
     metaDescription:
-      "Darželių, mokyklų, būrelių, stovyklų ir šeimos portalų svetainės. Internetinė reklama tikslinei šeimos auditorijai.",
+      "Šeimos ir vaikų puslapių reklama: darželių, mokyklų, būrelių, stovyklų ir šeimos portalų svetainės. Internetinė reklama tikslinei auditorijai.",
   },
   "sportas-pomegiai": {
-    metaTitle:
-      "Sporto klubai, treneriai, hobio ir laisvalaikio projektų svetainės",
     h1: "Sporto ir pomėgių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami sporto ir pomėgių tinklalapiai: sporto klubai ir treneriai, sporto prekių parduotuvės, klubai ir būreliai, žvejybos, medžioklės, žaidimų ir kitų hobio sričių puslapiai.",
     metaDescription:
-      "Sporto klubų, trenerių, hobio ir laisvalaikio projektų svetainės. Ilgalaikė reklama internetu aktyviems lankytojams.",
+      "Sporto ir pomėgių puslapių reklama: sporto klubų, trenerių, hobio ir laisvalaikio projektų svetainės. Ilgalaikė reklama internetu aktyviems lankytojams.",
   },
   "sveikata-grozis": {
-    metaTitle:
-      "Sveikatos klinikų, odontologų, grožio salonų ir SPA svetainės",
     h1: "Sveikatos ir grožio puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami sveikatos ir grožio tematikos tinklalapiai: klinikos, odontologai, medicinos centrai, grožio salonai, SPA, reabilitacijos ir sveikatinimo programų svetainės, mitybos ir savijautos projektai.",
     metaDescription:
-      "Klinikų, odontologų, medicinos centrų, grožio salonų ir SPA svetainės. Ilgalaikė internetinė reklama su aiškia metine kaina.",
+      "Sveikatos ir grožio puslapių reklama: klinikų, odontologų, medicinos centrų, grožio salonų ir SPA svetainės. Ilgalaikė internetinė reklama su aiškia metine kaina.",
   },
   technologijos: {
-    metaTitle: "Technologijų, IT ir programinės įrangos projektų svetainės",
     h1: "Technologijų puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami technologijų ir IT projektų tinklalapiai: technologijų portalai, programinės įrangos projektai, SaaS sprendimai, hostingo ir serverių paslaugos, elektronikos ir IT įmonių svetainės.",
     metaDescription:
-      "Technologijų portalai, IT, programinės įrangos, SaaS ir technologijų įmonių svetainės. Internetinė reklama skaitmeniniam verslui.",
+      "Technologijų puslapių reklama: IT, programinės įrangos, SaaS ir technologijų įmonių svetainės. Internetinė reklama skaitmeniniam verslui.",
   },
   transportas: {
-    metaTitle: "Transporto prekių parduotuvės ir naujienų svetainės",
     h1: "Transporto puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami transporto ir logistikos tinklalapiai: automobilių pardavimo ir nuomos svetainės, logistikos ir pervežimų įmonės, krovinių ir siuntų tarnybos, viešojo transporto projektai.",
     metaDescription:
-      "Transporto prekių parduotuvės, automobilių, nuomos, logistikos ir pervežimų įmonių svetainės. Ilgalaikė reklama internete transporto sektoriui.",
+      "Transporto puslapių reklama: automobilių, nuomos, logistikos ir pervežimų įmonių svetainės. Ilgalaikė reklama internete transporto sektoriui.",
   },
   "turizmas-keliones": {
-    metaTitle: "Kelionių agentūrų, apgyvendinimo ir turizmo svetainės",
     h1: "Turizmo ir kelionių puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami turizmo ir kelionių tinklalapiai: kelionių agentūros, apgyvendinimo svetainės, gidai, lankytinų vietų portalai, stovyklos ir poilsio projektai.",
     metaDescription:
-      "Kelionių agentūrų, apgyvendinimo, gidų ir lankytinų vietų svetainės. Interneto reklama keliautojų auditorijai.",
+      "Turizmo ir kelionių puslapių reklama: kelionių agentūrų, apgyvendinimo, gidų ir lankytinų vietų svetainės. Interneto reklama keliautojų auditorijai.",
   },
   "verslas-finansai": {
-    metaTitle:
-      "Verslo, finansų, investavimo ir draudimo projektų svetainės",
     h1: "Verslo ir finansų puslapių reklama",
     intro:
       "Čia talpinami ir reklamuojami verslo ir finansų tematikos tinklalapiai: bankai ir kredito įstaigos, investavimo ir draudimo projektai, verslo konsultacijų puslapiai, B2B paslaugų platformos, verslo naujienų portalai.",
     metaDescription:
-      "Bankų, finansų, investavimo, draudimo ir verslo naujienų svetainės. Internetinė reklama su aiškia metine kaina.",
+      "Verslo ir finansų puslapių reklama: bankų, finansų, investavimo ir verslo naujienų svetainės. Internetinė reklama su aiškia metine kaina.",
   },
   ziniasklaida: {
-    metaTitle:
-      "Naujienų portalai, žurnalai, tinklaraščiai ir turinio platformos",
     h1: "Žiniasklaidos puslapių reklama",
     intro:
       "Šioje kategorijoje reklamuojami žiniasklaidos ir turinio projektų tinklalapiai: naujienų portalai, internetiniai žurnalai, tinklaraščiai, podcastų ir vaizdo turinio platformos.",
     metaDescription:
-      "Naujienų portalai, žurnalai, tinklaraščiai ir vaizdo ar garso turinio platformos. Ilgalaikė internetinė reklama su stabilia pozicija kataloge.",
+      "Žiniasklaidos puslapių reklama: naujienų portalai, žurnalai, tinklaraščiai ir turinio platformos. Ilgalaikė internetinė reklama su stabilia pozicija kataloge.",
+  },
+  "dirbtinis-intelektas": {
+    h1: "Dirbtinio intelekto puslapių reklama",
+    intro:
+      "Šioje kategorijoje reklamuojami dirbtinio intelekto, automatizavimo ir naujų technologijų projektų tinklalapiai: AI įrankiai, platformos, sprendimai verslui ir kūrėjams.",
+    metaDescription:
+      "Dirbtinio intelekto puslapių reklama: AI įrankių, platformų ir technologinių sprendimų svetainės. Ilgalaikė internetinė reklama inovatyviems projektams.",
+  },
+  suaugusiems: {
+    h1: "Suaugusiųjų puslapių reklama (18+)",
+    intro:
+      "Šioje kategorijoje reklamuojami suaugusiųjų auditorijai skirti tinklalapiai ir projektai. Prieiga prie šio turinio ribojama lankytojams, patvirtinusiems, kad jiems yra ne mažiau kaip 18 metų.",
+    metaDescription:
+      "Suaugusiųjų puslapių reklama (18+): reklama suaugusiesiems skirto turinio svetainėms. Prieiga ribojama lankytojams nuo 18 metų.",
   },
 };
 
 function buildFallbackSeo(categoryName) {
-  const base = categoryName || "Teminės";
+  const base = categoryName || "Teminių";
   return {
-    metaTitle: `${base} svetainės ir teminiai projektai`,
     h1: `${base} puslapių reklama`,
     intro:
       "Šioje kategorijoje talpinami ir reklamuojami teminiai tinklalapiai. Ilgalaikė internetinė reklama su aiškia metine kaina ir pastovia pozicija kataloge.",
     metaDescription:
-      "Teminių svetainių ir projektų puslapiai: ilgalaikė reklama internete su aiškia metine kaina. Internetinė reklama nišiniuose tinklalapiuose.",
+      "Teminių puslapių reklama: ilgalaikė reklama internete su aiškia metine kaina. Internetinė reklama nišiniuose tinklalapiuose.",
   };
 }
 
@@ -168,7 +150,7 @@ export async function generateMetadata({ params }) {
 
   if (slug === "vip-zona") {
     return {
-      title: "VIP reklamos zona – išskirtinės reklamos vietos",
+      title: "Internetinė reklama – VIP zona",
       description:
         "Internetinė reklama VIP zonoje: aukščiausios eilės reklamos vietos su didžiausiu matomumu ir aiškia metine kaina.",
       alternates: {
@@ -191,10 +173,9 @@ export async function generateMetadata({ params }) {
   }
 
   const cfg = CATEGORY_SEO[slug] || buildFallbackSeo(category.name);
-  const metaTitle = cfg.metaTitle || cfg.h1;
 
   return {
-    title: metaTitle,
+    title: cfg.h1,
     description: cfg.metaDescription,
     alternates: {
       canonical: `/${slug}`,
@@ -204,9 +185,7 @@ export async function generateMetadata({ params }) {
 
 /* ------------------- Puslapis ------------------- */
 
-const CATEGORY_ANNUAL_PRICE = 29;
-
-// Čia – tas pats helperis kaip homepage, kad visur būtų 6 slotai eilėje
+// helperis – 6 slotai eilėje su virtualiais tuščiais
 function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
   const bySlotNumber = new Map();
   for (const slot of rowSlots || []) {
@@ -247,6 +226,7 @@ export default async function CategoryPage({ params }) {
   }
 
   const seoCfg = CATEGORY_SEO[slug] || buildFallbackSeo(category.name);
+  const pricing = await getAdPricingSettings();
 
   // Kategorijos sidebarui
   const supabase = await supabaseServer();
@@ -266,7 +246,7 @@ export default async function CategoryPage({ params }) {
     .filter((c) => c.slug !== "vip-zona")
     .sort((a, b) => a.name.localeCompare(b.name, "lt-LT"));
 
-  // Grupavimas pagal eilę – identiškai kaip homepage
+  // Grupavimas pagal eilę
   const rows = (slots || []).reduce((acc, slot) => {
     const key = slot.row_number || 1;
     if (!acc[key]) acc[key] = [];
@@ -285,7 +265,8 @@ export default async function CategoryPage({ params }) {
     .filter(([rowNumber]) => Number(rowNumber) !== 1)
     .sort((a, b) => Number(a[0]) - Number(b[0]));
 
-  return (
+  // visas UI kaip buvo
+  const pageContent = (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-6xl mx-auto px-4 pb-12">
         {/* Hero – centrinis, kaip VIP, tik su SEO tekstais */}
@@ -308,7 +289,12 @@ export default async function CategoryPage({ params }) {
 
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
-                  <CategorySlotCard key={slot.id} slot={slot} isTopRow />
+                  <CategorySlotCard
+                    key={slot.id}
+                    slot={slot}
+                    isTopRow
+                    pricing={pricing}
+                  />
                 ))}
               </div>
             </section>
@@ -329,7 +315,11 @@ export default async function CategoryPage({ params }) {
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                       {displaySlots.map((slot) => (
-                        <CategorySlotCard key={slot.id} slot={slot} />
+                        <CategorySlotCard
+                          key={slot.id}
+                          slot={slot}
+                          pricing={pricing}
+                        />
                       ))}
                     </div>
                   </div>
@@ -339,7 +329,7 @@ export default async function CategoryPage({ params }) {
           </div>
 
           {/* Dešinė – teminės kategorijos + tas pats „Kaip rezervuoti“ blokas */}
-          <aside className="lg:pt-2 lg:sticky lg:top-6 space-y-4">
+          <aside className="lg:pt-2 lg:top-6 lg:sticky space-y-4">
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
@@ -354,7 +344,7 @@ export default async function CategoryPage({ params }) {
               {vipCategory && (
                 <a
                   href="/"
-                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-blue-50 transition"
+                  className="mt-2 flex items-center justify-between rounded-2xl px-3 py-2 text-sm font-semibold text-blue-800 hover:bg-gray-50 transition"
                 >
                   <span>VIP zona</span>
                   <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-[2px] text-[11px] font-bold text-white">
@@ -430,16 +420,25 @@ export default async function CategoryPage({ params }) {
       </main>
     </div>
   );
+
+  // Jei tai „suaugusiems“ – apsukam per AgeGateClient
+  if (slug === "suaugusiems") {
+    return <AgeGateClient>{pageContent}</AgeGateClient>;
+  }
+
+  // Visoms kitoms kategorijoms – rodom tiesiai
+  return pageContent;
 }
 
-function CategorySlotCard({ slot, isTopRow = false }) {
+function CategorySlotCard({ slot, isTopRow = false, pricing }) {
   const ad = slot.ad || null;
   const isTaken = !!ad;
 
   const label = isTopRow ? "TOP VIETA" : `VIETA ${slot.slot_number}`;
-  const annualPrice = CATEGORY_ANNUAL_PRICE;
   const anchorText = ad?.anchor_text || ad?.title || "";
   const isLongAnchor = anchorText.length > 22;
+
+  const annualPrice = pricing.category_price;
 
   const baseClasses =
     "group rounded-2xl border px-2 py-2 text-[11px] bg-white shadow-sm w-[135px] h-[135px] mx-auto overflow-hidden transition-colors " +

@@ -1,28 +1,13 @@
 // app/page.jsx
 
-import { getSlotsByCategoryPublic } from "@/lib/getSlotsByCategoryPublic";
-import { supabasePublic } from "@/lib/supabasePublic";
+import { getSlotsByCategory } from "@/lib/getSlotsByCategory";
+import { supabaseServer } from "@/lib/supabaseServer";
+import { getAdPricingSettings } from "@/lib/getAdPricingSettings";
 
-// Homepage darom statinį su ISR – Vercel gali cache'inti rezultatą
-export const revalidate = 600; // 10 min (gali keisti vėliau)
+export const dynamic = "force-dynamic";
 
-const ROW_ANNUAL_PRICES = {
-  1: 49,
-  2: 39,
-  3: 39,
-  4: 39,
-  5: 39,
-  6: 39,
-  7: 39,
-  8: 39,
-};
-
-function getAnnualPrice(rowNumber) {
-  const n = Number(rowNumber);
-  return ROW_ANNUAL_PRICES[n] ?? null;
-}
-
-// Sukuriam 1–6 slotus eilėje, trūkstamus užpildom virtualiais
+// Pagal realius slotus eilėje suformuoja 6 pozicijas:
+// jei kažkur nėra įrašo – sukuriamas „virtualus“ tuščias slotas
 function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
   const bySlotNumber = new Map();
   for (const slot of rowSlots || []) {
@@ -38,6 +23,7 @@ function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
     if (existing) {
       result.push(existing);
     } else {
+      // virtualus tuščias slotas
       result.push({
         id: `virtual-${rowNumber}-${pos}`,
         row_number: rowNumber,
@@ -50,11 +36,14 @@ function buildDisplaySlots(rowSlots, rowNumber, maxSlots = 6) {
 }
 
 export default async function HomePage() {
-  // VIP zonos slotai (su reklamos objektais, jei aktyvūs)
-  const { category, slots } = await getSlotsByCategoryPublic("vip-zona");
+  // VIP zonos slotai
+  const { category, slots } = await getSlotsByCategory("vip-zona");
 
-  // Visos kategorijos sidebarui – irgi per public klientą
-  const supabase = supabasePublic;
+  // Globalios kainos
+  const pricing = await getAdPricingSettings();
+
+  // Visos kategorijos sidebarui
+  const supabase = await supabaseServer();
   const { data: categoriesData, error: categoriesError } = await supabase
     .from("categories")
     .select("id, name, slug")
@@ -103,7 +92,7 @@ export default async function HomePage() {
           </p>
         </section>
 
-        {/* Layout: slotai + sidebar */}
+        {/* Pagrindinis layout: siauresnis sidebar, daugiau vietos slotams */}
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,3fr),minmax(0,1fr)] gap-8 items-start">
           {/* Kairė – slotai */}
           <div>
@@ -111,9 +100,15 @@ export default async function HomePage() {
             <section className="space-y-4">
               <h2 className="text-lg font-semibold">TOP eilė</h2>
 
+              {/* 6 slotai: 2 per eilę mobile, 6 per eilę nuo md */}
               <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                 {topRow.map((slot) => (
-                  <HomeSlotCard key={slot.id} slot={slot} isTopRow />
+                  <HomeSlotCard
+                    key={slot.id}
+                    slot={slot}
+                    isTopRow
+                    pricing={pricing}
+                  />
                 ))}
               </div>
             </section>
@@ -134,7 +129,11 @@ export default async function HomePage() {
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
                       {displaySlots.map((slot) => (
-                        <HomeSlotCard key={slot.id} slot={slot} />
+                        <HomeSlotCard
+                          key={slot.id}
+                          slot={slot}
+                          pricing={pricing}
+                        />
                       ))}
                     </div>
                   </div>
@@ -143,8 +142,8 @@ export default async function HomePage() {
             </section>
           </div>
 
-          {/* Dešinė – kategorijos + instrukcija */}
-          <aside className="lg:pt-2 lg:top-6 lg:sticky space-y-4">
+          {/* Dešinė – teminės kategorijos + info dėžutė */}
+          <aside className="lg:pt-2 lg:sticky lg:top-6 space-y-4">
             {/* Teminės kategorijos */}
             <div className="rounded-3xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
               <div>
@@ -154,6 +153,7 @@ export default async function HomePage() {
                 </p>
               </div>
 
+              {/* VIP pirmas, atskirtas blokas */}
               {vipCategory && (
                 <a
                   href="/vip-zona"
@@ -227,14 +227,17 @@ export default async function HomePage() {
   );
 }
 
-function HomeSlotCard({ slot, isTopRow = false }) {
+function HomeSlotCard({ slot, isTopRow = false, pricing }) {
   const ad = slot.ad || null;
   const isTaken = !!ad;
 
   const label = isTopRow ? "TOP VIETA" : `VIETA ${slot.slot_number}`;
-  const annualPrice = getAnnualPrice(slot.row_number);
   const anchorText = ad?.anchor_text || ad?.title || "";
   const isLongAnchor = anchorText.length > 22;
+
+  const annualPrice = isTopRow
+    ? pricing.homepage_top_price
+    : pricing.homepage_other_price;
 
   const baseClasses =
     "group rounded-2xl border px-2 py-2 text-[11px] bg-white shadow-sm w-[135px] h-[135px] mx-auto overflow-hidden transition-colors " +
@@ -244,12 +247,14 @@ function HomeSlotCard({ slot, isTopRow = false }) {
 
   const content = (
     <div className="flex flex-col h-full">
+      {/* Label rodom tik kai slotas LAISVAS – kad neužimtų vietos užimtam */}
       {!isTaken && (
         <div className="text-[9px] font-semibold uppercase tracking-wide text-amber-500 mb-[2px]">
           {label}
         </div>
       )}
 
+      {/* Vidurinė dalis – logo arba LAISVA */}
       <div
         className={
           "flex-1 flex justify-center " +
@@ -274,6 +279,7 @@ function HomeSlotCard({ slot, isTopRow = false }) {
         )}
       </div>
 
+      {/* Apačia – anchor tekstas arba kaina */}
       <div className="mt-1 text-center leading-tight">
         {isTaken ? (
           anchorText ? (
@@ -287,14 +293,10 @@ function HomeSlotCard({ slot, isTopRow = false }) {
               {anchorText}
             </span>
           ) : null
-        ) : annualPrice ? (
+        ) : (
           <span className="text-[11px] text-gray-700">
             {annualPrice.toFixed(2)} €{" "}
             <span className="text-gray-500 font-normal">/ metai</span>
-          </span>
-        ) : (
-          <span className="text-[11px] text-gray-400">
-            Kaina pagal susitarimą
           </span>
         )}
       </div>
