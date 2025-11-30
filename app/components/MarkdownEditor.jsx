@@ -14,7 +14,6 @@ export default function MarkdownEditor({
   const [value, setValue] = useState(defaultValue || "");
   const textareaRef = useRef(null);
 
-  // jei redaguojant straipsnį ateina nauja defaultValue – atnaujinam editorių
   useEffect(() => {
     setValue(defaultValue || "");
   }, [defaultValue]);
@@ -35,8 +34,12 @@ export default function MarkdownEditor({
       case "h1": {
         const lineStart = value.lastIndexOf("\n", start - 1) + 1;
         const lineEnd =
-          value.indexOf("\n", end) === -1 ? value.length : value.indexOf("\n", end);
-        const line = value.slice(lineStart, lineEnd).replace(/^#+\s*/, "");
+          value.indexOf("\n", end) === -1
+            ? value.length
+            : value.indexOf("\n", end);
+        const line = value
+          .slice(lineStart, lineEnd)
+          .replace(/^#+\s*/, "");
         replacement = `# ${line || selected || "Antraštė"}`;
         setValue(
           value.slice(0, lineStart) + replacement + value.slice(lineEnd)
@@ -53,8 +56,12 @@ export default function MarkdownEditor({
       case "h2": {
         const lineStart = value.lastIndexOf("\n", start - 1) + 1;
         const lineEnd =
-          value.indexOf("\n", end) === -1 ? value.length : value.indexOf("\n", end);
-        const line = value.slice(lineStart, lineEnd).replace(/^#+\s*/, "");
+          value.indexOf("\n", end) === -1
+            ? value.length
+            : value.indexOf("\n", end);
+        const line = value
+          .slice(lineStart, lineEnd)
+          .replace(/^#+\s*/, "");
         replacement = `## ${line || selected || "Antraštė"}`;
         setValue(
           value.slice(0, lineStart) + replacement + value.slice(lineEnd)
@@ -71,8 +78,12 @@ export default function MarkdownEditor({
       case "h3": {
         const lineStart = value.lastIndexOf("\n", start - 1) + 1;
         const lineEnd =
-          value.indexOf("\n", end) === -1 ? value.length : value.indexOf("\n", end);
-        const line = value.slice(lineStart, lineEnd).replace(/^#+\s*/, "");
+          value.indexOf("\n", end) === -1
+            ? value.length
+            : value.indexOf("\n", end);
+        const line = value
+          .slice(lineStart, lineEnd)
+          .replace(/^#+\s*/, "");
         replacement = `### ${line || selected || "Antraštė"}`;
         setValue(
           value.slice(0, lineStart) + replacement + value.slice(lineEnd)
@@ -100,7 +111,6 @@ export default function MarkdownEditor({
         break;
 
       case "underline":
-        // markdown neturi underline – naudosim paprastą HTML
         before = "<u>";
         after = "</u>";
         replacement = selected || "pabrauktas tekstas";
@@ -128,7 +138,9 @@ export default function MarkdownEditor({
 
       case "ul": {
         const block = selected || "Pirmas punktas\nAntras punktas";
-        const lines = block.split("\n").map((l) => (l ? `- ${l}` : "- Punktas"));
+        const lines = block
+          .split("\n")
+          .map((l) => (l ? `- ${l}` : "- Punktas"));
         replacement = lines.join("\n");
         before = "";
         after = "";
@@ -148,7 +160,9 @@ export default function MarkdownEditor({
 
       case "quote": {
         const block = selected || "Citatos tekstas";
-        const lines = block.split("\n").map((l) => `> ${l || "Citata"}`);
+        const lines = block
+          .split("\n")
+          .map((l) => `> ${l || "Citata"}`);
         replacement = lines.join("\n");
         before = "";
         after = "";
@@ -201,7 +215,6 @@ export default function MarkdownEditor({
         {label}
       </label>
 
-      {/* Įrankių juosta */}
       <div className="flex flex-wrap gap-2 text-xs mb-1">
         {/* Antraštės */}
         <div className="flex items-center gap-1 rounded-full bg-gray-50 px-2 py-1 border border-gray-200">
@@ -318,7 +331,6 @@ export default function MarkdownEditor({
         </div>
       </div>
 
-      {/* Editor + peržiūra */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
           <textarea
@@ -352,9 +364,9 @@ export default function MarkdownEditor({
       </div>
 
       <p className="text-[11px] text-gray-500">
-        Gali naudoti tiek paprastą tekstą, tiek Markdown sintaksę (#, ##, **bold**,
-        _italic_, sąrašus, nuorodas) ir paprastą HTML. Peržiūros skiltis rodo,
-        kaip straipsnis atrodys galutiniame variante.
+        Gali naudoti tiek paprastą tekstą, tiek Markdown sintaksę (#, ##,
+        **bold**, _italic_, sąrašus, nuorodas) ir paprastą HTML. Peržiūros
+        skiltis rodo, kaip straipsnis atrodys galutiniame variante.
       </p>
     </div>
   );

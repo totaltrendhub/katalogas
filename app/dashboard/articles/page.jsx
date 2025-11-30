@@ -4,25 +4,58 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { supabaseServer } from "@/lib/supabaseServer";
-import { getAllArticlesWithCategory } from "@/lib/articles";
+import {
+  getAllArticlesWithCategory,
+  getArticleCategories,
+} from "@/lib/articles";
 
 export const dynamic = "force-dynamic";
 
-export default async function ArticlesDashboardPage() {
+function hasError(err) {
+  return !!(err && typeof err === "object" && Object.keys(err).length > 0);
+}
+
+export default async function ArticlesDashboardPage(props) {
+  const searchParams = await props.searchParams;
+  const success = searchParams?.success || null;
+  const error = searchParams?.error || null;
+
+  let statusMessage = null;
+  let statusType = null; // "success" | "error"
+
+  if (success === "created") {
+    statusType = "success";
+    statusMessage = "Straipsnis sėkmingai sukurtas.";
+  } else if (success === "updated") {
+    statusType = "success";
+    statusMessage = "Straipsnis sėkmingai atnaujintas.";
+  } else if (success === "deleted") {
+    statusType = "success";
+    statusMessage = "Straipsnis sėkmingai ištrintas.";
+  } else if (error === "create_failed") {
+    statusType = "error";
+    statusMessage =
+      "Straipsnio sukurti nepavyko. Patikrink formos duomenis ir bandyk dar kartą.";
+  } else if (error === "update_failed") {
+    statusType = "error";
+    statusMessage =
+      "Straipsnio atnaujinti nepavyko. Bandyk dar kartą arba patikrink serverio logus.";
+  }
+
   const user = await getCurrentUser();
   if (!user) {
     redirect("/auth/login");
   }
 
   const supabase = await supabaseServer();
-  const { data: profile, error } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("is_admin")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (error) {
-    console.error("ArticlesDashboard profile ERROR:", error);
+  if (hasError(profileError)) {
+    console.error("ArticlesDashboard profile ERROR:", profileError);
   }
 
   if (!profile?.is_admin) {
@@ -33,7 +66,16 @@ export default async function ArticlesDashboardPage() {
     );
   }
 
-  const articles = await getAllArticlesWithCategory();
+  const [articles, categories] = await Promise.all([
+    getAllArticlesWithCategory(),
+    getArticleCategories(),
+  ]);
+
+  const catsById =
+    categories?.reduce((acc, c) => {
+      acc[c.id] = c;
+      return acc;
+    }, {}) || {};
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
@@ -54,6 +96,20 @@ export default async function ArticlesDashboardPage() {
           + Naujas straipsnis
         </Link>
       </header>
+
+      {/* status juosta */}
+      {statusMessage && (
+        <div
+          className={
+            "rounded-xl border px-4 py-2 text-sm " +
+            (statusType === "success"
+              ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+              : "border-red-300 bg-red-50 text-red-800")
+          }
+        >
+          {statusMessage}
+        </div>
+      )}
 
       {articles.length === 0 ? (
         <p className="text-sm text-gray-500">
@@ -87,6 +143,9 @@ export default async function ArticlesDashboardPage() {
                 const publishedAt = article.published_at
                   ? new Date(article.published_at)
                   : null;
+                const category = article.category_id
+                  ? catsById[article.category_id]
+                  : null;
 
                 return (
                   <tr
@@ -100,7 +159,7 @@ export default async function ArticlesDashboardPage() {
                       </div>
                     </td>
                     <td className="px-3 py-2 text-xs text-gray-700">
-                      {article.category_name || "Be kategorijos"}
+                      {category?.name || "Be kategorijos"}
                     </td>
                     <td className="px-3 py-2 text-xs">
                       <span

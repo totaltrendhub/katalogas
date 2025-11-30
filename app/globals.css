@@ -12,3 +12,97 @@ body {
     transform: scale(0.85);
   }
 }
+
+/* Straipsnių turiniui (TinyMCE HTML) */
+.article-body {
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* Antraštės */
+.article-body h1,
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.article-body h1 {
+  font-size: 1.6rem;
+}
+
+.article-body h2 {
+  font-size: 1.4rem;
+}
+
+.article-body h3 {
+  font-size: 1.2rem;
+}
+
+.article-body h4 {
+  font-size: 1.05rem;
+}
+
+/* Paragrafai */
+.article-body p {
+  margin: 0 0 0.75rem;
+}
+
+/* Sąrašai */
+.article-body ul,
+.article-body ol {
+  margin: 0.75rem 0 0.75rem 1.5rem;
+  padding-left: 0;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+/* Lentelės */
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.9rem;
+}
+
+.article-body th,
+.article-body td {
+  border: 1px solid #e5e7eb; /* ~gray-200 */
+  padding: 0.4rem 0.6rem;
+}
+
+.article-body th {
+  background-color: #f9fafb; /* ~gray-50 */
+  font-weight: 600;
+}
+
+/* Nuorodos */
+.article-body a {
+  color: #1d4ed8; /* ~blue-700 */
+  text-decoration: underline;
+}
+
+.article-body a:hover {
+  color: #1e40af; /* ~blue-800 */
+}
+
+/* Paryškinimas */
+.article-body strong {
+  font-weight: 600;
+}
+
+/* Paveikslėliai straipsnio viduje */
+.article-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}

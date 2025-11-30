@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/getCurrentUser";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getArticleCategories } from "@/lib/articles";
 import { createArticleAction } from "@/lib/articleActions";
-import MarkdownEditor from "@/app/components/MarkdownEditor";
+import RichTextEditor from "@/app/components/RichTextEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -163,13 +163,10 @@ export default async function NewArticlePage() {
         </div>
 
         <div className="space-y-1">
-          <label
-            htmlFor="body"
-            className="block text-sm font-medium text-gray-800"
-          >
+          <label className="block text-sm font-medium text-gray-800">
             Straipsnio turinys
           </label>
-          <MarkdownEditor name="body" />
+          <RichTextEditor name="body" />
         </div>
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">

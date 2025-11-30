@@ -47,10 +47,11 @@ export default async function ArticlesPage() {
                 ? new Date(article.published_at)
                 : null;
 
+              const rawBody = article.body || "";
               const excerpt =
-                (article.body || "").length > 180
-                  ? article.body.slice(0, 180) + "..."
-                  : article.body || "";
+                rawBody.length > 180
+                  ? rawBody.slice(0, 180) + "..."
+                  : rawBody;
 
               return (
                 <Link
