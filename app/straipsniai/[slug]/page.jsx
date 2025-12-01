@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
   const supabase = await supabaseServer();
   const { data: article, error } = await supabase
     .from("articles")
-    .select("title, meta_title, meta_description, body_html, body, published")
+    .select("title, meta_title, meta_description, body, published")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();
@@ -25,9 +25,14 @@ export async function generateMetadata({ params }) {
   }
 
   const title = article.meta_title || article.title;
-
-  const rawHtml = article.body_html || article.body || "";
-  const plain = rawHtml.replace(/<[^>]+>/g, "").slice(0, 160);
+  const plain =
+    article.body
+      ?.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 160) || "";
   const description = article.meta_description || plain;
 
   return { title, description };
@@ -50,12 +55,9 @@ export default async function ArticlePage({ params }) {
     ? new Date(article.published_at)
     : null;
 
-  const htmlBody = article.body_html || article.body || "";
-
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="max-w-3xl mx-auto px-4 py-10 space-y-6">
-        {/* Header */}
         <header className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wide text-blue-600">
             Straipsnis
@@ -80,7 +82,6 @@ export default async function ArticlePage({ params }) {
           </div>
         </header>
 
-        {/* Viršelio paveikslėlis */}
         {article.cover_image_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -90,11 +91,9 @@ export default async function ArticlePage({ params }) {
           />
         )}
 
-        {/* Straipsnio turinys */}
-        <article className="article-body text-gray-800">
-          <div
-            dangerouslySetInnerHTML={{ __html: htmlBody }}
-          />
+        {/* Čia – TinyMCE HTML turinys su tavo .article-body CSS */}
+        <article className="article-body bg-white rounded-2xl border border-gray-200 px-4 py-5">
+          <div dangerouslySetInnerHTML={{ __html: article.body || "" }} />
         </article>
       </main>
     </div>

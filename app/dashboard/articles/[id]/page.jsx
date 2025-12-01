@@ -3,12 +3,12 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { supabaseServer } from "@/lib/supabaseServer";
-import { getArticleCategories, getArticleBySlug } from "@/lib/articles";
+import { getArticleCategories, getArticleById } from "@/lib/articles";
 import {
   updateArticleAction,
   deleteArticleAction,
 } from "@/lib/articleActions";
-import RichTextEditor from "@/app/components/RichTextEditor";
+import TinyMceEditor from "@/app/components/TinyMceEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -37,16 +37,10 @@ export default async function EditArticlePage({ params }) {
     );
   }
 
-  // Straipsnį pasiimam tiesiai iš articles lentelės pagal id
-  const { data: article, error: articleError } = await supabase
-    .from("articles")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (articleError) {
-    console.error("EditArticle article ERROR:", articleError);
-  }
+  const [article, categories] = await Promise.all([
+    getArticleById(id),
+    getArticleCategories(),
+  ]);
 
   if (!article) {
     return (
@@ -55,8 +49,6 @@ export default async function EditArticlePage({ params }) {
       </div>
     );
   }
-
-  const categories = await getArticleCategories();
 
   const publishedAt = article.published_at
     ? new Date(article.published_at)
@@ -193,12 +185,11 @@ export default async function EditArticlePage({ params }) {
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-800">
-            Straipsnio turinys
-          </label>
-          <RichTextEditor name="body" defaultValue={article.body || ""} />
-        </div>
+        <TinyMceEditor
+          name="body"
+          label="Straipsnio turinys"
+          initialValue={article.body || ""}
+        />
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <label className="inline-flex items-center gap-2 text-sm text-gray-800">

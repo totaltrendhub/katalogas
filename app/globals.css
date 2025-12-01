@@ -75,23 +75,23 @@ body {
 
 .article-body th,
 .article-body td {
-  border: 1px solid #e5e7eb; /* ~gray-200 */
+  border: 1px solid #e5e7eb;
   padding: 0.4rem 0.6rem;
 }
 
 .article-body th {
-  background-color: #f9fafb; /* ~gray-50 */
+  background-color: #f9fafb;
   font-weight: 600;
 }
 
 /* Nuorodos */
 .article-body a {
-  color: #1d4ed8; /* ~blue-700 */
+  color: #1d4ed8;
   text-decoration: underline;
 }
 
 .article-body a:hover {
-  color: #1e40af; /* ~blue-800 */
+  color: #1e40af;
 }
 
 /* Paryškinimas */

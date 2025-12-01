@@ -5,7 +5,7 @@ import { getCurrentUser } from "@/lib/getCurrentUser";
 import { supabaseServer } from "@/lib/supabaseServer";
 import { getArticleCategories } from "@/lib/articles";
 import { createArticleAction } from "@/lib/articleActions";
-import RichTextEditor from "@/app/components/RichTextEditor";
+import TinyMceEditor from "@/app/components/TinyMceEditor";
 
 export const dynamic = "force-dynamic";
 
@@ -76,8 +76,7 @@ export default async function NewArticlePage() {
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
           />
           <p className="text-[11px] text-gray-500">
-            Pavyzdžiui: &quot;mano-pirmas-straipsnis&quot;. Jei paliksi
-            tuščią – sugeneruos automatiškai.
+            Jei paliksi tuščią – sugeneruos automatiškai.
           </p>
         </div>
 
@@ -136,9 +135,6 @@ export default async function NewArticlePage() {
               placeholder="palik tuščią, jei naudoti pavadinimą"
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
             />
-            <p className="text-[11px] text-gray-500">
-              Rekomenduojama iki ~60–70 simbolių.
-            </p>
           </div>
 
           <div className="space-y-1">
@@ -156,18 +152,10 @@ export default async function NewArticlePage() {
               placeholder="Trumpas aprašymas rezultatams paieškoje."
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-400"
             />
-            <p className="text-[11px] text-gray-500">
-              Rekomenduojama iki ~150–180 simbolių.
-            </p>
           </div>
         </div>
 
-        <div className="space-y-1">
-          <label className="block text-sm font-medium text-gray-800">
-            Straipsnio turinys
-          </label>
-          <RichTextEditor name="body" />
-        </div>
+        <TinyMceEditor name="body" label="Straipsnio turinys" />
 
         <div className="flex items-center justify-between pt-4 border-t border-gray-100">
           <label className="inline-flex items-center gap-2 text-sm text-gray-800">

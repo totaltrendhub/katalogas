@@ -55,7 +55,7 @@ export default function KainosPage() {
               <tr className="border-t border-gray-100 bg-white">
                 <td className="px-4 py-2 text-xs">1 eilė (TOP zona)</td>
                 <td className="px-4 py-2 text-xs font-semibold">
-                  49,00 € / metai
+                  19,99 € / metai
                 </td>
                 <td className="px-4 py-2 text-xs text-gray-600">
                   Aukščiausia eilė, maksimalus matomumas visoje VIP
@@ -69,7 +69,7 @@ export default function KainosPage() {
                   2–8 eilės (visos žemiau)
                 </td>
                 <td className="px-4 py-2 text-xs font-semibold">
-                  39,00 € / metai
+                  14,99 € / metai
                 </td>
                 <td className="px-4 py-2 text-xs text-gray-600">
                   Matomos VIP zonoje, tačiau žemiau TOP eilės. Kaina
@@ -101,7 +101,7 @@ export default function KainosPage() {
                 Vieno sloto kaina
               </p>
               <p className="mt-1 text-2xl font-bold text-gray-900">
-                29 €{" "}
+                9,99 €{" "}
                 <span className="text-sm font-normal text-gray-500">
                   / 12 mėn.
                 </span>

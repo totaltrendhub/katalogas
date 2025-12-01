@@ -4,10 +4,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/getCurrentUser";
 import { supabaseServer } from "@/lib/supabaseServer";
-import {
-  getAllArticlesWithCategory,
-  getArticleCategories,
-} from "@/lib/articles";
+import { getAllArticlesWithCategory } from "@/lib/articles";
 
 export const dynamic = "force-dynamic";
 
@@ -19,9 +16,10 @@ export default async function ArticlesDashboardPage(props) {
   const searchParams = await props.searchParams;
   const success = searchParams?.success || null;
   const error = searchParams?.error || null;
+  const debug = searchParams?.debug || null;
 
   let statusMessage = null;
-  let statusType = null; // "success" | "error"
+  let statusType = null;
 
   if (success === "created") {
     statusType = "success";
@@ -32,14 +30,9 @@ export default async function ArticlesDashboardPage(props) {
   } else if (success === "deleted") {
     statusType = "success";
     statusMessage = "Straipsnis sėkmingai ištrintas.";
-  } else if (error === "create_failed") {
+  } else if (error === "article_failed") {
     statusType = "error";
-    statusMessage =
-      "Straipsnio sukurti nepavyko. Patikrink formos duomenis ir bandyk dar kartą.";
-  } else if (error === "update_failed") {
-    statusType = "error";
-    statusMessage =
-      "Straipsnio atnaujinti nepavyko. Bandyk dar kartą arba patikrink serverio logus.";
+    statusMessage = "Straipsnio operacija nepavyko.";
   }
 
   const user = await getCurrentUser();
@@ -66,27 +59,17 @@ export default async function ArticlesDashboardPage(props) {
     );
   }
 
-  const [articles, categories] = await Promise.all([
-    getAllArticlesWithCategory(),
-    getArticleCategories(),
-  ]);
-
-  const catsById =
-    categories?.reduce((acc, c) => {
-      acc[c.id] = c;
-      return acc;
-    }, {}) || {};
+  const articles = await getAllArticlesWithCategory();
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
           <h1 className="text-2xl font-bold tracking-tight">
             Straipsnių valdymas
           </h1>
           <p className="text-sm text-gray-600">
-            Čia gali kurti, redaguoti ir publikuoti straipsnius SEO ir
-            papildomai reklamai.
+            Čia gali kurti, redaguoti ir publikuoti straipsnius SEO ir papildomai reklamai.
           </p>
         </div>
         <Link
@@ -97,8 +80,8 @@ export default async function ArticlesDashboardPage(props) {
         </Link>
       </header>
 
-      {/* status juosta */}
-      {statusMessage && (
+      {/* Statuso juosta */}
+      {(statusMessage || debug) && (
         <div
           className={
             "rounded-xl border px-4 py-2 text-sm " +
@@ -107,7 +90,12 @@ export default async function ArticlesDashboardPage(props) {
               : "border-red-300 bg-red-50 text-red-800")
           }
         >
-          {statusMessage}
+          <div>{statusMessage}</div>
+          {debug && (
+            <div className="mt-1 text-[11px] text-gray-500 break-all">
+              (debug: {debug})
+            </div>
+          )}
         </div>
       )}
 
@@ -143,9 +131,6 @@ export default async function ArticlesDashboardPage(props) {
                 const publishedAt = article.published_at
                   ? new Date(article.published_at)
                   : null;
-                const category = article.category_id
-                  ? catsById[article.category_id]
-                  : null;
 
                 return (
                   <tr
@@ -159,7 +144,7 @@ export default async function ArticlesDashboardPage(props) {
                       </div>
                     </td>
                     <td className="px-3 py-2 text-xs text-gray-700">
-                      {category?.name || "Be kategorijos"}
+                      {article.category_name || "Be kategorijos"}
                     </td>
                     <td className="px-3 py-2 text-xs">
                       <span

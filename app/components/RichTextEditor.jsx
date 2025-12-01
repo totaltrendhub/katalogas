@@ -1,107 +1,101 @@
 // app/components/RichTextEditor.jsx
-
 "use client";
 
-import { useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
+import { Editor } from "@tinymce/tinymce-react";
 
-// TinyMCE Editor – importuojam tik kliente (be SSR)
-const TinyMCEEditor = dynamic(
-  () => import("@tinymce/tinymce-react").then((m) => m.Editor),
-  { ssr: false }
-);
+// TinyMCE – bundler režimas (be Cloud API, viskas iš npm)
+import "tinymce/tinymce";
+import "tinymce/icons/default";
+import "tinymce/themes/silver";
+import "tinymce/models/dom";
 
-/**
- * WYSIWYG HTML editorius su TinyMCE.
- * Viskas, ką parašai, keliauja kaip HTML į <input name={name}> – t.y.
- * server action gauna body kaip HTML stringą.
- */
+// Pluginai (tik nemokami)
+import "tinymce/plugins/advlist";
+import "tinymce/plugins/autolink";
+import "tinymce/plugins/lists";
+import "tinymce/plugins/link";
+import "tinymce/plugins/image";
+import "tinymce/plugins/charmap";
+import "tinymce/plugins/preview";
+import "tinymce/plugins/anchor";
+import "tinymce/plugins/searchreplace";
+import "tinymce/plugins/code";
+import "tinymce/plugins/fullscreen";
+import "tinymce/plugins/insertdatetime";
+import "tinymce/plugins/media";
+import "tinymce/plugins/table";
+import "tinymce/plugins/wordcount";
+
+// UI skin (oxide)
+import "tinymce/skins/ui/oxide/skin.min.css";
+
 export default function RichTextEditor({
-  name,
-  defaultValue = "",
-  height = 450,
+  name = "body",
+  initialValue = "",
+  label = "Straipsnio turinys",
 }) {
-  const hiddenRef = useRef(null);
+  const [value, setValue] = useState(initialValue || "");
 
-  // užpildom hidden input pradiniu HTML
   useEffect(() => {
-    if (hiddenRef.current) {
-      hiddenRef.current.value = defaultValue || "";
-    }
-  }, [defaultValue]);
-
-  function handleChange(content) {
-    if (hiddenRef.current) {
-      hiddenRef.current.value = content;
-    }
-  }
+    setValue(initialValue || "");
+  }, [initialValue]);
 
   return (
     <div className="space-y-2">
-      {/* Čia keliauja HTML į server action */}
-      <input
-        type="hidden"
-        name={name}
-        ref={hiddenRef}
-        defaultValue={defaultValue || ""}
-      />
+      {label && (
+        <label className="block text-sm font-medium text-gray-800">
+          {label}
+        </label>
+      )}
 
-      <TinyMCEEditor
-        apiKey={process.env.NEXT_PUBLIC_TINYMCE_API_KEY}
-        initialValue={defaultValue || ""}
-        onEditorChange={handleChange}
+      <Editor
+        value={value}
+        onEditorChange={(content) => setValue(content || "")}
         init={{
-          height,
-          menubar: true,
+          height: 500,
+          menubar: false,
           branding: false,
-          statusbar: true,
-
-          // pluginai – pagrindiniai + dalis iš tavo snippet'o
+          statusbar: false,
           plugins: [
-            "anchor",
+            "advlist",
             "autolink",
-            "charmap",
-            "codesample",
-            "emoticons",
-            "link",
             "lists",
-            "media",
+            "link",
+            "image",
+            "charmap",
+            "preview",
+            "anchor",
             "searchreplace",
+            "code",
+            "fullscreen",
+            "insertdatetime",
+            "media",
             "table",
-            "visualblocks",
             "wordcount",
-            "checklist",
-            "casechange",
-            "formatpainter",
-            "pageembed",
-            "a11ychecker",
-            "tinymcespellchecker",
-            "advtable",
-            "advcode",
-            "tableofcontents",
-            "footnotes",
-            "autocorrect",
-            "typography",
-            "markdown",
           ],
-
-          // toolbar artimas tam, ką parodė snippet'e
           toolbar:
-            "undo redo | blocks fontfamily fontsize | " +
-            "bold italic underline strikethrough | forecolor backcolor | " +
+            "undo redo | blocks | bold italic underline strikethrough | " +
             "alignleft aligncenter alignright alignjustify | " +
-            "bullist numlist checklist outdent indent | " +
-            "link media table | " +
-            "emoticons charmap | " +
-            "removeformat | code",
-
-          tinycomments_mode: "embedded",
-          tinycomments_author: "Autorius",
-
-          content_style:
-            "body { font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif; font-size:14px; }",
+            "bullist numlist outdent indent | " +
+            "link image media table | removeformat | code fullscreen",
+          block_formats:
+            "Pastraipa=p; Antraštė 2=h2; Antraštė 3=h3; Antraštė 4=h4",
+          content_style: `
+            body { 
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; 
+              font-size: 14px; 
+              line-height: 1.7; 
+            }
+            img { max-width: 100%; height: auto; border-radius: 8px; }
+            table { border-collapse: collapse; width: 100%; }
+            th, td { border: 1px solid #e5e7eb; padding: 4px 6px; }
+          `,
         }}
       />
+
+      {/* ČIA – kas realiai keliauja į server action kaip form field */}
+      <input type="hidden" name={name} value={value} />
     </div>
   );
 }
